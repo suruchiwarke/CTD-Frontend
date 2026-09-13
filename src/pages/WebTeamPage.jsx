@@ -49,7 +49,7 @@ export const WebTeamPage = () => {
 
     {
       id: "m5",
-      name: "Anushka Chitkkote",
+      name: "Anushka Chitkote",
       photo: "/assets/team/sanket.jpg",
       instagram:
         "https://www.instagram.com/sanket_kulkarni_05?igsh=MXM1a3h6d3pzMHZpaA==",
@@ -68,7 +68,7 @@ export const WebTeamPage = () => {
 
     {
       id: "m7",
-      name: "Shreyank",
+      name: "Shreyank Pal",
       photo: "/assets/team/varsha.jpg",
       instagram: "https://www.instagram.com/v_arsha_62/",
       linkedin:
@@ -77,7 +77,7 @@ export const WebTeamPage = () => {
 
     {
       id: "m8",
-      name: "Disha",
+      name: "Diksha Sagare",
       photo: "/assets/team/arjun.jpg",
       instagram:
         "https://www.instagram.com/arjungawande35?igsh=cWpqcmQ5bWJoejd6",
