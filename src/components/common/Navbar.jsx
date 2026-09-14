@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { User as UserIcon, Menu, LogOut } from 'lucide-react';
+import { User as UserIcon, Menu, LogOut, ShoppingCart, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import { SidebarDrawer } from './SidebarDrawer';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { cartCount } = useCart();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
@@ -18,6 +20,7 @@ export const Navbar = () => {
     { name: 'EVENTS', path: '/events' },
     { name: 'WEB TEAM', path: '/web-team' },
     { name: 'SPONSORS', path: '/sponsors' },
+    { name: 'CART', path: '/cart', icon: true },
   ];
 
   return (
@@ -62,7 +65,7 @@ export const Navbar = () => {
 
           {/* Desktop Center Navigation Links (Hidden on Auth pages) */}
           {!isAuthPage && (
-            <nav className="hidden md:flex items-center gap-8 lg:gap-12">
+            <nav className="hidden md:flex items-center gap-7 lg:gap-10">
               {navLinks.map((link) => {
                 const isActive =
                   location.pathname === link.path ||
@@ -71,8 +74,13 @@ export const Navbar = () => {
                   <NavLink
                     key={link.name}
                     to={link.path}
-                    className="relative group py-2 text-xs lg:text-sm font-semibold tracking-widest text-purple-200/80 hover:text-white transition-colors uppercase"
+                    className={`relative group py-2 text-xs lg:text-sm font-semibold tracking-widest transition-colors uppercase flex items-center gap-1.5 ${
+                      isActive ? 'text-white' : 'text-purple-200/80 hover:text-white'
+                    }`}
                   >
+                    {link.icon && (
+                      <ShoppingCart className="w-4 h-4 text-purple-300 group-hover:text-white transition-colors" />
+                    )}
                     <span>{link.name}</span>
                     {isActive && (
                       <span className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#f472b6] to-transparent shadow-[0_0_8px_#f472b6] rounded-full" />
@@ -83,7 +91,7 @@ export const Navbar = () => {
             </nav>
           )}
 
-          {/* Right Corner Area: Circular Profile Logo (if logged in) OR Login button / 3 lines */}
+          {/* Right Corner Area: Circular Profile Logo with dropdown arrow OR Login button / 3 lines */}
           <div className="flex items-center gap-4 flex-shrink-0">
             {isAuthPage ? (
               /* On Login, Signup, Forgot Password pages -> Show 3 Horizontal Lines */
@@ -98,25 +106,36 @@ export const Navbar = () => {
               /* On Normal pages */
               <>
                 {isAuthenticated ? (
-                  /* Small Circular Profile Logo Only */
+                  /* Circular Profile Avatar with dropdown arrow as in design */
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className="w-10 h-10 rounded-full border border-purple-400/50 bg-gradient-to-br from-purple-900/80 to-purple-950/80 flex items-center justify-center text-purple-100 hover:text-white hover:border-purple-300 hover:shadow-[0_0_15px_rgba(216,180,254,0.4)] transition-all transform hover:scale-105 focus:outline-none"
+                      className="flex items-center gap-1.5 group p-1 rounded-full focus:outline-none"
                       aria-label="User Profile"
                       title={user?.fullName || user?.username || 'Profile'}
                     >
-                      <UserIcon className="w-5 h-5 text-purple-200" />
+                      <div className="w-10 h-10 rounded-full border border-purple-400/60 bg-gradient-to-br from-purple-900/80 to-purple-950/90 flex items-center justify-center text-purple-100 group-hover:text-white group-hover:border-purple-300 group-hover:shadow-[0_0_15px_rgba(216,180,254,0.4)] transition-all transform group-hover:scale-105">
+                        <UserIcon className="w-5 h-5 text-purple-200" />
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-purple-300 group-hover:text-white transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {/* Profile Dropdown Menu */}
                     {isProfileOpen && (
                       <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-[#1a0c2e]/95 border border-purple-500/40 backdrop-blur-xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                         <div className="px-4 py-3 border-b border-purple-800/40">
-                          <p className="text-[10px] text-purple-300/70 uppercase tracking-widest">Signed in as</p>
+                          <p className="text-[10px] text-purple-300/70 uppercase tracking-widest font-semibold">Signed in as</p>
                           <p className="text-sm font-bold text-white truncate mt-0.5">{user?.fullName || user?.username}</p>
                           <p className="text-xs text-purple-300/80 truncate">{user?.email}</p>
                         </div>
+                        <Link
+                          to="/cart"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="w-full text-left px-4 py-2.5 text-xs text-purple-200 hover:bg-purple-900/40 flex items-center gap-2 font-semibold uppercase tracking-wider transition-colors"
+                        >
+                          <ShoppingCart className="w-4 h-4 text-pink-400" />
+                          <span>My Cart {cartCount > 0 && `(${cartCount})`}</span>
+                        </Link>
                         <button
                           onClick={() => {
                             setIsProfileOpen(false);

@@ -1,10 +1,12 @@
-import React from 'react';
+﻿import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { X, LogOut, User as UserIcon } from 'lucide-react';
+import { X, LogOut, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 export const SidebarDrawer = ({ isOpen, onClose }) => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { cartCount } = useCart();
 
   if (!isOpen) return null;
 
@@ -29,7 +31,7 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Navigation Links LEFT ALIGNED as requested */}
+        {/* Navigation Links LEFT ALIGNED */}
         <nav className="flex flex-col space-y-6 text-left font-medium tracking-widest text-lg items-start w-full">
           <NavLink
             to="/"
@@ -89,6 +91,19 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
             }
           >
             ABOUT US
+          </NavLink>
+
+          <NavLink
+            to="/cart"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `transition-colors uppercase flex items-center gap-2 w-full text-left ${
+                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
+              }`
+            }
+          >
+            <ShoppingCart className="w-5 h-5 text-pink-400" />
+            <span>CART {cartCount > 0 && `(${cartCount})`}</span>
           </NavLink>
 
           {isAuthenticated ? (
