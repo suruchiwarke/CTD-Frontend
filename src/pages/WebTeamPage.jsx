@@ -11,7 +11,7 @@ export const WebTeamPage = () => {
     {
       id: "m1",
       name: "Suruchi Warke",
-      photo: "/assets/team/rashmi.jpeg",
+      photo: "/assets/team/suruchi.jpeg",
       instagram:
         "https://www.instagram.com/rashmiabhyankar05?igsh=dGVxcjRoeGp1bW14",
       linkedin:
@@ -21,7 +21,7 @@ export const WebTeamPage = () => {
     {
       id: "m2",
       name: "Swarali Patil",
-      photo: "/assets/team/aabha.jpeg",
+      photo: "/assets/team/swarali.jpeg",
       instagram:
         "https://www.instagram.com/aabhaj25?igsh=bzc3NzBlemMxb3lx&utm_source=qr",
       linkedin: "https://www.linkedin.com/in/aabha-jog-68aa162b2/",
@@ -30,7 +30,7 @@ export const WebTeamPage = () => {
     {
       id: "m3",
       name: "Hital Chavan",
-      photo: "/assets/team/gargi.jpeg",
+      photo: "/assets/team/hital.jpeg",
       instagram:
         "https://www.instagram.com/gargirahane?igsh=MWxhd20zZjBvc2phdw%3D%3D&utm_source=qr",
       linkedin:
@@ -40,7 +40,7 @@ export const WebTeamPage = () => {
     {
       id: "m4",
       name: "Pranjali Lad",
-      photo: "/assets/team/akanksha.jpeg",
+      photo: "/assets/team/pranjali.jpeg",
       instagram:
         "https://www.instagram.com/akankshabhagwat_?igsh=ZnZua2c0ZDJldzV1&utm_source=qr",
       linkedin:
@@ -50,7 +50,7 @@ export const WebTeamPage = () => {
     {
       id: "m5",
       name: "Anushka Chitkote",
-      photo: "/assets/team/sanket.jpg",
+      photo: "/assets/team/anushka.jpeg",
       instagram:
         "https://www.instagram.com/sanket_kulkarni_05?igsh=MXM1a3h6d3pzMHZpaA==",
       linkedin:
@@ -60,7 +60,7 @@ export const WebTeamPage = () => {
     {
       id: "m6",
       name: "Jay",
-      photo: "/assets/team/ashmit.jpg",
+      photo: "/assets/team/jay.jpeg",
       instagram: "https://www.instagram.com/ashmit_b_03/",
       linkedin:
         "https://www.linkedin.com/in/ashmit-borawake-7a8641290/",
@@ -69,7 +69,7 @@ export const WebTeamPage = () => {
     {
       id: "m7",
       name: "Shreyank Pal",
-      photo: "/assets/team/varsha.jpg",
+      photo: "/assets/team/shreyank.jpeg",
       instagram: "https://www.instagram.com/v_arsha_62/",
       linkedin:
         "https://www.linkedin.com/in/varsha-tembugade-77b3472bb/",
@@ -78,7 +78,7 @@ export const WebTeamPage = () => {
     {
       id: "m8",
       name: "Diksha Sagare",
-      photo: "/assets/team/arjun.jpg",
+      photo: "/assets/team/diksha.jpeg",
       instagram:
         "https://www.instagram.com/arjungawande35?igsh=cWpqcmQ5bWJoejd6",
       linkedin:
@@ -88,7 +88,7 @@ export const WebTeamPage = () => {
     {
       id: "m9",
       name: "Purva Patil",
-      photo: "/assets/team/anushree.jpg",
+      photo: "/assets/team/purva.jpeg",
       instagram: "https://www.instagram.com/kamathanushree/",
       linkedin:
         "https://www.linkedin.com/in/anushreekamath04/",
@@ -96,8 +96,8 @@ export const WebTeamPage = () => {
 
     {
       id: "m10",
-      name: "Poorva",
-      photo: "/assets/team/harshal.jpg",
+      name: "Poorva Patil",
+      photo: "/assets/team/poorva.jpeg",
       instagram: "https://www.instagram.com/harshalbelgamwar/",
       linkedin:
         "https://www.linkedin.com/in/harshal-belgamwar/",
@@ -106,7 +106,7 @@ export const WebTeamPage = () => {
     {
       id: "m11",
       name: "Sarthak Godbole",
-      photo: "/assets/team/maitreya.jpg",
+      photo: "/assets/team/sarthak.jpeg",
       instagram:
         "https://www.instagram.com/___maitreya___16?igsh=ZThua3hweHQxdTls",
       linkedin:
@@ -116,7 +116,7 @@ export const WebTeamPage = () => {
     {
       id: "m12",
       name: "Manas Shewale",
-      photo: "/assets/team/tanushree.jpg",
+      photo: "/assets/team/manas.jpeg",
       instagram:
         "https://www.instagram.com/tanushree.mandavilli25/",
       linkedin:
@@ -126,7 +126,7 @@ export const WebTeamPage = () => {
     {
       id: "m13",
       name: "Niranjan Iyer",
-      photo: "/assets/team/tanushree.jpg",
+      photo: "/assets/team/niranjan.jpeg",
       instagram:
         "https://www.instagram.com/tanushree.mandavilli25/",
       linkedin:
