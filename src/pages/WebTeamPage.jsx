@@ -59,7 +59,7 @@ export const WebTeamPage = () => {
 
     {
       id: "m6",
-      name: "Jay",
+      name: "Jay Kelani",
       photo: "/assets/team/jay.jpeg",
       instagram: "https://www.instagram.com/ashmit_b_03/",
       linkedin:
