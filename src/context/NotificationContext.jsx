@@ -6,28 +6,42 @@ const NotificationContext = createContext(undefined);
 export const NotificationProvider = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const errorTimerRef = React.useRef(null);
+  const successTimerRef = React.useRef(null);
 
   const showError = useCallback((message, duration = 6000) => {
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
     setErrorMessage(message);
     if (duration > 0) {
-      setTimeout(() => {
-        setErrorMessage((prev) => (prev === message ? null : prev));
+      errorTimerRef.current = setTimeout(() => {
+        setErrorMessage(null);
       }, duration);
     }
   }, []);
 
   const showSuccess = useCallback((message, duration = 4000) => {
+    if (successTimerRef.current) clearTimeout(successTimerRef.current);
     setSuccessMessage(message);
     if (duration > 0) {
-      setTimeout(() => {
-        setSuccessMessage((prev) => (prev === message ? null : prev));
+      successTimerRef.current = setTimeout(() => {
+        setSuccessMessage(null);
       }, duration);
     }
   }, []);
 
-  const clearError = useCallback(() => setErrorMessage(null), []);
-  const clearSuccess = useCallback(() => setSuccessMessage(null), []);
+  const clearError = useCallback(() => {
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    setErrorMessage(null);
+  }, []);
+
+  const clearSuccess = useCallback(() => {
+    if (successTimerRef.current) clearTimeout(successTimerRef.current);
+    setSuccessMessage(null);
+  }, []);
+
   const clearAll = useCallback(() => {
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    if (successTimerRef.current) clearTimeout(successTimerRef.current);
     setErrorMessage(null);
     setSuccessMessage(null);
   }, []);
