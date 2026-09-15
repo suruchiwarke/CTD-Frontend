@@ -60,15 +60,9 @@ export const WebTeamPage = () => {
 
     {
       id: "m6",
-<<<<<<< HEAD
       name: "Jay Kelani",
       photo: "/assets/team/jay.jpeg",
-      instagram: "https://www.instagram.com/ashmit_b_03/",
-=======
-      name: "Jay",
-      photo: "/assets/team/ashmit.jpg",
       instagram: "https://www.instagram.com/jay.kelanii?stkn=cnAzZjNpeWIzZ2ow",
->>>>>>> 0d3e64f2d518f169b32f387aec0f97c0d0131817
       linkedin:
         "https://www.linkedin.com/in/jay-kelani-682103219/",
     },
@@ -76,13 +70,8 @@ export const WebTeamPage = () => {
     {
       id: "m7",
       name: "Shreyank Pal",
-<<<<<<< HEAD
       photo: "/assets/team/shreyank.jpeg",
-      instagram: "https://www.instagram.com/v_arsha_62/",
-=======
-      photo: "/assets/team/varsha.jpg",
       instagram: "https://www.instagram.com/shreyank_2432/",
->>>>>>> 0d3e64f2d518f169b32f387aec0f97c0d0131817
       linkedin:
         " https://www.linkedin.com/in/shreyank-pal-648b79260/",
     },
@@ -100,28 +89,17 @@ export const WebTeamPage = () => {
     {
       id: "m9",
       name: "Purva Patil",
-<<<<<<< HEAD
       photo: "/assets/team/purva.jpeg",
-      instagram: "https://www.instagram.com/kamathanushree/",
-=======
-      photo: "/assets/team/anushree.jpg",
       instagram: "https://www.instagram.com/purvaa05_/",
->>>>>>> 0d3e64f2d518f169b32f387aec0f97c0d0131817
       linkedin:
         " https://www.linkedin.com/in/purva-patil-71b8113a1",
     },
 
     {
       id: "m10",
-<<<<<<< HEAD
       name: "Poorva Patil",
       photo: "/assets/team/poorva.jpeg",
-      instagram: "https://www.instagram.com/harshalbelgamwar/",
-=======
-      name: "Poorva",
-      photo: "/assets/team/harshal.jpg",
       instagram: "https://www.instagram.com/_poorvapatil_",
->>>>>>> 0d3e64f2d518f169b32f387aec0f97c0d0131817
       linkedin:
         "https://www.linkedin.com/in/patilpoorva",
     },
