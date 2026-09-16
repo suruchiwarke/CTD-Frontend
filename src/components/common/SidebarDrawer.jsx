@@ -46,6 +46,18 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
           </NavLink>
 
           <NavLink
+            to="/about"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `transition-colors uppercase block w-full text-left ${
+                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
+              }`
+            }
+          >
+            ABOUT
+          </NavLink>
+
+          <NavLink
             to="/events"
             onClick={onClose}
             className={({ isActive }) =>
@@ -55,18 +67,6 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
             }
           >
             EVENTS
-          </NavLink>
-
-          <NavLink
-            to="/sponsors"
-            onClick={onClose}
-            className={({ isActive }) =>
-              `transition-colors uppercase block w-full text-left ${
-                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
-              }`
-            }
-          >
-            SPONSORS
           </NavLink>
 
           <NavLink
@@ -82,7 +82,7 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
           </NavLink>
 
           <NavLink
-            to="/about"
+            to="/sponsors"
             onClick={onClose}
             className={({ isActive }) =>
               `transition-colors uppercase block w-full text-left ${
@@ -90,7 +90,20 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
               }`
             }
           >
-            ABOUT US
+            SPONSORS
+          </NavLink>
+
+          <NavLink
+            to="/cart"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `transition-colors uppercase flex items-center gap-2 w-full text-left ${
+                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
+              }`
+            }
+          >
+            <ShoppingCart className="w-5 h-5 text-pink-400" />
+            <span>CART {cartCount > 0 && `(${cartCount})`}</span>
           </NavLink>
 
           <NavLink

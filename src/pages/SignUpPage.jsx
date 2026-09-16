@@ -22,9 +22,13 @@ export const SignUpPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const categoryOptions = [
+    { value: 'FE', label: 'First Year (FE)' },
+    { value: 'SE', label: 'Second Year (SE)' },
+    { value: 'TE', label: 'Third Year (TE)' },
+    { value: 'BE', label: 'Final Year (BE)' },
     { value: 'Junior', label: 'Junior Category' },
     { value: 'Senior', label: 'Senior Category' },
-   
+    { value: 'Other', label: 'Other' },
   ];
 
   const handleChange = (e) => {
