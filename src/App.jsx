@@ -38,26 +38,26 @@ export const App = () => {
               {/* Global Navbar */}
               <Navbar />
 
-{/* Application Routes */}
-<div className="flex-1 flex flex-col">
-  <Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/about" element={<AboutPage />} />
-    <Route path="/events" element={<EventsPage />} />
-    <Route path="/events/:eventId" element={<EventDetailPage />} />
-    <Route
-      path="/decode-rush"
-      element={<Navigate to="/events/decode-rush" replace />}
-    />
-    <Route path="/web-team" element={<WebTeamPage />} />
-    <Route path="/sponsors" element={<SponsorsPage />} />
-    <Route path="/cart" element={<CartPage />} />
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/signup" element={<SignUpPage />} />
-    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-    <Route path="*" element={<HomePage />} />
-  </Routes>
-</div>
+              {/* Application Routes */}
+              <div className="flex-1 flex flex-col">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/events" element={<EventsPage />} />
+                  <Route path="/events/:eventId" element={<EventDetailPage />} />
+                  <Route
+                    path="/decode-rush"
+                    element={<Navigate to="/events/decode-rush" replace />}
+                  />
+                  <Route path="/web-team" element={<WebTeamPage />} />
+                  <Route path="/sponsors" element={<SponsorsPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="*" element={<HomePage />} />
+                </Routes>
+              </div>
             </div>
           </CartProvider>
         </AuthProvider>

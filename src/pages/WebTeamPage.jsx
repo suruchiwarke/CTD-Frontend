@@ -13,9 +13,9 @@ export const WebTeamPage = () => {
       name: "Suruchi Warke",
       photo: "/assets/team/suruchi.jpeg",
       instagram:
-        "https://www.instagram.com/rashmiabhyankar05?igsh=dGVxcjRoeGp1bW14",
+        "https://www.instagram.com/suruchi_510/",
       linkedin:
-        "https://www.linkedin.com/in/rashmiabhyankar?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+        "https://www.linkedin.com/in/suruchi-warke/",
     },
 
     {
@@ -23,8 +23,8 @@ export const WebTeamPage = () => {
       name: "Swarali Patil",
       photo: "/assets/team/swarali.jpeg",
       instagram:
-        "https://www.instagram.com/aabhaj25?igsh=bzc3NzBlemMxb3lx&utm_source=qr",
-      linkedin: "https://www.linkedin.com/in/aabha-jog-68aa162b2/",
+        "https://www.instagram.com/swaralipatil11/",
+      linkedin: "https://www.linkedin.com/in/swarali-patil-223979372/",
     },
 
     {
@@ -32,19 +32,20 @@ export const WebTeamPage = () => {
       name: "Hital Chavan",
       photo: "/assets/team/hital.jpeg",
       instagram:
-        "https://www.instagram.com/gargirahane?igsh=MWxhd20zZjBvc2phdw%3D%3D&utm_source=qr",
+        "https://www.instagram.com/hitalc_24",
       linkedin:
-        "https://www.linkedin.com/in/gargirahane?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+        "https://linkedin.com/in/hital-chavan-18ba9532a",
     },
+    
 
     {
       id: "m4",
       name: "Pranjali Lad",
       photo: "/assets/team/pranjali.jpeg",
       instagram:
-        "https://www.instagram.com/akankshabhagwat_?igsh=ZnZua2c0ZDJldzV1&utm_source=qr",
+        "https://www.instagram.com/pranjali_lad74/",
       linkedin:
-        "https://www.linkedin.com/in/akanksha-bhagwat-b86390287/",
+        "https://www.linkedin.com/in/pranjali-lad-546761312",
     },
 
     {
@@ -52,27 +53,27 @@ export const WebTeamPage = () => {
       name: "Anushka Chitkote",
       photo: "/assets/team/anushka.jpeg",
       instagram:
-        "https://www.instagram.com/sanket_kulkarni_05?igsh=MXM1a3h6d3pzMHZpaA==",
+        "https://www.instagram.com/anushkaa_.11",
       linkedin:
-        "https://www.linkedin.com/in/sanket-kulkarni-4167862b4/",
+        "https://www.linkedin.com/in/anushka-chitkote/",
     },
 
     {
       id: "m6",
       name: "Jay Kelani",
       photo: "/assets/team/jay.jpeg",
-      instagram: "https://www.instagram.com/ashmit_b_03/",
+      instagram: "https://www.instagram.com/jay.kelanii?stkn=cnAzZjNpeWIzZ2ow",
       linkedin:
-        "https://www.linkedin.com/in/ashmit-borawake-7a8641290/",
+        "https://www.linkedin.com/in/jay-kelani-682103219/",
     },
 
     {
       id: "m7",
       name: "Shreyank Pal",
       photo: "/assets/team/shreyank.jpeg",
-      instagram: "https://www.instagram.com/v_arsha_62/",
+      instagram: "https://www.instagram.com/shreyank_2432/",
       linkedin:
-        "https://www.linkedin.com/in/varsha-tembugade-77b3472bb/",
+        " https://www.linkedin.com/in/shreyank-pal-648b79260/",
     },
 
     {
@@ -80,27 +81,27 @@ export const WebTeamPage = () => {
       name: "Diksha Sagare",
       photo: "/assets/team/diksha.jpeg",
       instagram:
-        "https://www.instagram.com/arjungawande35?igsh=cWpqcmQ5bWJoejd6",
+        "https://www.instagram.com/diksha__1207/",
       linkedin:
-        "https://www.linkedin.com/in/arjun-gawande-a48b8528a/",
+        "https://www.linkedin.com/in/diksha-sagare-255775380",
     },
 
     {
       id: "m9",
       name: "Purva Patil",
       photo: "/assets/team/purva.jpeg",
-      instagram: "https://www.instagram.com/kamathanushree/",
+      instagram: "https://www.instagram.com/purvaa05_/",
       linkedin:
-        "https://www.linkedin.com/in/anushreekamath04/",
+        " https://www.linkedin.com/in/purva-patil-71b8113a1",
     },
 
     {
       id: "m10",
       name: "Poorva Patil",
       photo: "/assets/team/poorva.jpeg",
-      instagram: "https://www.instagram.com/harshalbelgamwar/",
+      instagram: "https://www.instagram.com/_poorvapatil_",
       linkedin:
-        "https://www.linkedin.com/in/harshal-belgamwar/",
+        "https://www.linkedin.com/in/patilpoorva",
     },
 
     {
@@ -108,9 +109,9 @@ export const WebTeamPage = () => {
       name: "Sarthak Godbole",
       photo: "/assets/team/sarthak.jpeg",
       instagram:
-        "https://www.instagram.com/___maitreya___16?igsh=ZThua3hweHQxdTls",
+        "https://www.instagram.com/godbole_sarthak/",
       linkedin:
-        "https://www.linkedin.com/in/maitreya-vaidya-33721731a/",
+        "https://www.linkedin.com/in/sarthak-godbole-1b6206329/",
     },
 
     {
@@ -118,9 +119,9 @@ export const WebTeamPage = () => {
       name: "Manas Shewale",
       photo: "/assets/team/manas.jpeg",
       instagram:
-        "https://www.instagram.com/tanushree.mandavilli25/",
+        "https://www.instagram.com/manasshewale_",
       linkedin:
-        "https://www.linkedin.com/in/tanushree-mandavilli-33870928a/",
+        "https://www.linkedin.com/in/manasshewale15/",
     },
 
     {
@@ -128,9 +129,9 @@ export const WebTeamPage = () => {
       name: "Niranjan Iyer",
       photo: "/assets/team/niranjan.jpeg",
       instagram:
-        "https://www.instagram.com/tanushree.mandavilli25/",
+        "https://www.instagram.com/niranjan_iyer_",
       linkedin:
-        "https://www.linkedin.com/in/tanushree-mandavilli-33870928a/",
+        "https://www.linkedin.com/in/iyerniranjan",
     },
   ];
 

@@ -106,6 +106,19 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
             <span>CART {cartCount > 0 && `(${cartCount})`}</span>
           </NavLink>
 
+          <NavLink
+            to="/cart"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `transition-colors uppercase flex items-center gap-2 w-full text-left ${
+                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
+              }`
+            }
+          >
+            <ShoppingCart className="w-5 h-5 text-pink-400" />
+            <span>CART {cartCount > 0 && `(${cartCount})`}</span>
+          </NavLink>
+
           {isAuthenticated ? (
             <div className="pt-6 border-t border-purple-500/30 flex flex-col items-start w-full space-y-4">
               <div className="flex items-center gap-2 text-purple-200 text-sm">
