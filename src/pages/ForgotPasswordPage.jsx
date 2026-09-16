@@ -18,7 +18,7 @@ export const ForgotPasswordPage = () => {
     e.preventDefault();
 
     if (!email || !email.includes('@')) {
-      showError('ERROR MESSAGE');
+      showError('Please enter a valid email address.');
       return;
     }
 
