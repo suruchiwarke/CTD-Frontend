@@ -42,10 +42,12 @@ CTD Frontend/
 │   │
 │   ├── context/                          # Global state management
 │   │   ├── AuthContext.jsx               # User session, login, signup, and logout state
+│   │   ├── CartContext.jsx               # Cart state, items storage, and event handlers
 │   │   └── NotificationContext.jsx       # Global banner notifications & error toasts
 │   │
 │   ├── pages/                            # Top-level route pages
 │   │   ├── AboutPage.jsx                 # CTD & IEEE info (Single-screen desktop view)
+│   │   ├── CartPage.jsx                  # Events in cart view & empty cart cosmic illustration
 │   │   ├── EventsPage.jsx                # Events title with empty canvas for teammates
 │   │   ├── ForgotPasswordPage.jsx        # Password recovery form with error banner
 │   │   ├── HomePage.jsx                  # Hero section with CREDENZ title & dates
