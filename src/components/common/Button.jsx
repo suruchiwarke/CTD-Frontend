@@ -31,7 +31,7 @@ export const Button = ({
   return (
     <button
       disabled={disabled || isLoading}
-      className={`relative inline-flex items-center justify-center gap-2 rounded-full font-bold uppercase transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`relative inline-flex items-center justify-center gap-2 rounded-full font-aldrich font-bold uppercase transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {isLoading ? (

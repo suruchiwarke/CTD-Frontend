@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/common/Input';
@@ -7,7 +7,9 @@ import { Button } from '../components/common/Button';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+  const returnUrl = location.state?.returnUrl || '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +21,7 @@ export const LoginPage = () => {
     setIsLoading(true);
     try {
       await login({ email, password, keepSignedIn });
-      navigate('/');
+      navigate(returnUrl);
     } catch {
       // Error handled by AuthContext via NotificationContext
     } finally {

@@ -31,6 +31,7 @@ export const eventsData = [
     fee: '₹50 per team',
     prize: '₹5,000',
     isFeatured: false,
+    isDuo: true,
     description: [
       'Reverse Coding is a unique programming event where participants are challenged to work backwards from the output to deduce the hidden logic of the program.',
       'The problems begin with simpler scenarios and gradually move toward complex ones, requiring participants to sharpen their debugging and reverse-engineering skills.',
@@ -64,6 +65,7 @@ export const eventsData = [
     fee: 'FREE',
     prize: '₹2,500',
     isFeatured: false,
+    isDuo: true,
     description: [
       'Enigma is an aptitude-based event designed to test logical reasoning, analytical thinking, and quantitative problem-solving skills.',
       'This competition challenges participants with puzzles, aptitude questions, and reasoning tasks that must be solved under time pressure.',
@@ -100,6 +102,7 @@ export const eventsData = [
     fee: '₹50 per team',
     prize: '₹5,000',
     isFeatured: false,
+    isDuo: true,
     description: [
       'The National Computing Contest is a competitive programming event designed to test coding skills, logical thinking, and problem-solving abilities.',
       'The contest presents problems of varying difficulty, ranging from basic algorithms to advanced data structures.',

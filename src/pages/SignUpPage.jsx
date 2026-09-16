@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { User as UserIcon, Mail, Lock, Phone, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/common/Input';
@@ -8,7 +8,9 @@ import { Button } from '../components/common/Button';
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signUp } = useAuth();
+  const returnUrl = location.state?.returnUrl || '/';
 
   const [formData, setFormData] = useState({
     username: '',
@@ -40,7 +42,7 @@ export const SignUpPage = () => {
     setIsLoading(true);
     try {
       await signUp(formData);
-      navigate('/');
+      navigate(returnUrl);
     } catch {
       // Error handled by AuthContext via NotificationContext
     } finally {
