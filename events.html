@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PICT IEEE Student Branch - Events</title>
+
+  <style>
+    /* -------------------------------------------------------------
+       1. FONTS & DISPLAY FALLBACKS
+       ------------------------------------------------------------- */
+    @font-face {
+      font-family: 'Tungsten';
+      src: url('assets/fonts/Tungsten-Bold.ttf') format('truetype'),
+           url('assets/fonts/Tungsten-Bold.woff2') format('woff2'),
+           url('assets/fonts/Tungsten-Bold.otf') format('opentype'),
+           url('assets/fonts/tungsten-bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700&family=Oswald:wght@600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    :root {
+      --font-title: 'Tungsten', 'Anton', 'Oswald', sans-serif;
+      --font-ui: 'Montserrat', sans-serif;
+      --card-bg: rgba(22, 9, 36, 0.44);
+      --card-border: rgba(235, 120, 255, 0.35);
+      --card-glow: rgba(217, 70, 239, 0.55);
+
+      /* Multi-stop horizontal cosmic gradient */
+      --cosmic-gradient: linear-gradient(
+        90deg,
+        #9333ea 0%,
+        #c084fc 25%,
+        #f472b6 55%,
+        #fbcfe8 76%,
+        #ffedd5 92%,
+        #fffbeb 100%
+      );
+    }
+
+    /* -------------------------------------------------------------
+       2. RESPONSIVE FULLPAGE COSMIC BACKGROUND
+       ------------------------------------------------------------- */
+    html {
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto; /* Natural scrolling in inspect/mobile mode */
+      background-color: #0b0213;
+      color: #ffffff;
+      font-family: var(--font-ui);
+      user-select: none;
+      position: relative;
+    }
+
+    /* Cosmic Background System */
+    .bg-main-layer {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -3;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Procedural celestial planets rendered underneath as visual fallback */
+    .procedural-planets {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -4;
+      pointer-events: none;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 15%, #2a0845 0%, #120324 50%, #06010c 100%);
+    }
+
+    .planet-left {
+      position: absolute;
+      width: 720px;
+      height: 720px;
+      left: -280px;
+      top: 10%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 75% 30%, #8b2fc9 0%, #440a7a 40%, #160228 85%);
+      box-shadow: inset -35px -35px 85px rgba(0, 0, 0, 0.9), 0 0 110px rgba(168, 85, 247, 0.45);
+      filter: blur(1.5px);
+    }
+
+    .planet-moon {
+      position: absolute;
+      width: 135px;
+      height: 135px;
+      left: 16%;
+      top: 23%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 65% 35%, #a855f7 0%, #3b0764 65%, #0f0122 90%);
+      box-shadow: 0 0 45px rgba(216, 180, 254, 0.35);
+      filter: blur(1.5px);
+    }
+
+    .planet-right {
+      position: absolute;
+      width: 680px;
+      height: 680px;
+      right: -250px;
+      top: 16%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 25% 35%, #a855f7 0%, #581c87 35%, #1c0233 80%);
+      box-shadow: inset 35px -35px 85px rgba(0, 0, 0, 0.85), 0 0 120px rgba(236, 72, 153, 0.35);
+      filter: blur(2px);
+    }
+
+    .bg-vignette {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      background: radial-gradient(circle at 50% 30%, rgba(13, 3, 24, 0.05) 0%, rgba(7, 1, 14, 0.65) 100%);
+      pointer-events: none;
+    }
+
+    .page-layout {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 50px 30px 50px;
+    }
+
+    /* -------------------------------------------------------------
+       3. TOP NAVIGATION BAR
+       ------------------------------------------------------------- */
+    header {
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      flex-shrink: 0;
+    }
+
+    .navbar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      justify-self: start;
+    }
+
+    .brand-ctd {
+      height: 34px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .brand-pisb {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 36px;
+      align-items: center;
+      justify-self: center;
+    }
+
+    .nav-links a {
+      color: #dfd7e8;
+      text-decoration: none;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      position: relative;
+      padding-bottom: 5px;
+      transition: color 0.25s ease;
+    }
+
+    .nav-links a:hover {
+      color: #ffffff;
+    }
+
+    .nav-links a.active {
+      color: #ffffff;
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: #ffffff;
+      box-shadow: 0 0 8px #ffffff;
+    }
+
+    /* -------------------------------------------------------------
+       LOGIN BUTTON: GRADIENT BORDER, TEXT & GLOW
+       ------------------------------------------------------------- */
+    .login-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 22px;
+      border-radius: 9999px;
+      background: rgba(14, 5, 24, 0.74);
+      text-decoration: none;
+      backdrop-filter: blur(12px);
+      justify-self: end;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 
+        -3px 0 12px -1px rgba(147, 51, 234, 0.5),
+         3px 0 12px -1px rgba(244, 114, 182, 0.5),
+         0 0 8px rgba(254, 218, 194, 0.2);
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      padding: 1.4px;
+      background: var(--cosmic-gradient);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        -5px 0 16px rgba(147, 51, 234, 0.7),
+         5px 0 16px rgba(244, 114, 182, 0.7),
+         0 0 12px rgba(255, 255, 255, 0.4);
+    }
+
+    .login-icon-svg {
+      width: 13px;
+      height: 13px;
+      fill: url(#cosmic-svg-grad);
+    }
+
+    .login-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: var(--cosmic-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    /* -------------------------------------------------------------
+       4. HERO TITLE (WITH PROPER SPACING)
+       ------------------------------------------------------------- */
+    .hero {
+      text-align: center;
+      margin-top: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 5;
+      flex-shrink: 0;
+    }
+
+    .hero h1 {
+      font-family: var(--font-title);
+      font-size: clamp(74px, 8.2vw, 116px);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 0.9;
+      display: inline-block;
+
+      background: var(--cosmic-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 35px rgba(217, 70, 239, 0.5));
+    }
+
+    .hero-dash {
+      width: 28px;
+      height: 1.5px;
+      background: rgba(255, 255, 255, 0.5);
+      margin: 14px auto 0 auto;
+    }
+
+    /* -------------------------------------------------------------
+       5. CARDS CONTAINER & NEON GLOWS
+       ------------------------------------------------------------- */
+    .events-wrapper {
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      flex-grow: 1;
+      justify-content: center;
+      position: relative;
+      z-index: 5;
+    }
+
+    .cards-row-top {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 26px;
+    }
+
+    .cards-row-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+
+    .event-card {
+      position: relative;
+      min-height: 154px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      padding: 22px 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.65),
+        inset 0 0 20px rgba(217, 70, 239, 0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .event-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle at 0% 0%, rgba(244, 114, 182, 0.65), transparent 70%);
+      pointer-events: none;
+    }
+
+    .event-card::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle at 100% 100%, rgba(217, 70, 239, 0.6), transparent 70%);
+      pointer-events: none;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--card-glow);
+      box-shadow: 
+        0 18px 45px rgba(0, 0, 0, 0.75),
+        0 0 25px rgba(217, 70, 239, 0.35),
+        inset 0 0 25px rgba(217, 70, 239, 0.2);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    /* -------------------------------------------------------------
+       6. EXACT LOGO BADGES & SIZING
+       ------------------------------------------------------------- */
+    .icon-box {
+      width: 58px;
+      height: 58px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .icon-box img {
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .logo-nth {
+      width: 100% !important;
+      height: 125% !important;
+      object-fit: contain;
+      max-width: none !important;
+    }
+
+    .logo-ncc {
+      width: 88%;
+      height: 88%;
+      object-fit: contain;
+    }
+
+    .logo-rc {
+      width: 120% !important;
+      height: 250% !important;
+      object-fit: contain;
+      max-width: none !important;
+    }
+
+    .logo-enigma {
+      width: 85%;
+      height: 80%;
+      object-fit: contain;
+    }
+
+    .logo-decoderush {
+      width: 125%;
+      height: 120%;
+      object-fit: contain;
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 3px;
+    }
+
+    .event-name {
+      font-size: 14.5px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      color: #ffffff;
+      text-transform: uppercase;
+      line-height: 1.25;
+    }
+
+    .event-date {
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      color: #cec1dc;
+      text-transform: uppercase;
+    }
+
+    .card-bottom {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    /* -------------------------------------------------------------
+       7. EXACT GLOWING GRADIENT PRIZE POOL BADGE
+       ------------------------------------------------------------- */
+    .prize-badge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 18px;
+      border-radius: 9999px;
+      background: rgba(14, 5, 24, 0.74);
+      box-shadow: 
+        -4px 0 14px -1px rgba(147, 51, 234, 0.55),
+         4px 0 14px -1px rgba(244, 114, 182, 0.55),
+         0 0 8px rgba(254, 218, 194, 0.2);
+    }
+
+    .prize-badge::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      padding: 1.4px;
+      background: var(--cosmic-gradient);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .prize-text {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      background: var(--cosmic-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* -------------------------------------------------------------
+       8. RESPONSIVE / INSPECT MODE COMPATIBILITY
+       ------------------------------------------------------------- */
+    @media (max-width: 1040px) {
+      .page-layout {
+        height: auto;
+        min-height: 100vh;
+        padding: 20px 24px 40px 24px;
+      }
+      .cards-row-top,
+      .cards-row-bottom {
+        grid-template-columns: 1fr;
+      }
+      .navbar {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .brand-group {
+        justify-self: center;
+      }
+      .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .login-btn {
+        justify-self: center;
+      }
+      .hero {
+        margin-top: 18px;
+        margin-bottom: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Hidden SVG defining gradient paint for icon fills -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <linearGradient id="cosmic-svg-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#9333ea" />
+        <stop offset="40%" stop-color="#f472b6" />
+        <stop offset="100%" stop-color="#ffedd5" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Background Layers -->
+  <div class="procedural-planets">
+    <div class="planet-left"></div>
+    <div class="planet-moon"></div>
+    <div class="planet-right"></div>
+  </div>
+  <div class="bg-main-layer" id="bgLayer"></div>
+  <div class="bg-vignette"></div>
+
+  <div class="page-layout">
+
+    <!-- Header Navigation -->
+    <header>
+      <nav class="navbar">
+        <div class="brand-group">
+          <img class="brand-ctd" src="assets/logos/ctd-logo.png" alt="CTD" />
+          <div class="brand-divider"></div>
+          <img class="brand-pisb" src="assets/logos/pisb-logo.png" alt="PICT IEEE Student Branch" />
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#" class="active">Events</a></li>
+          <li><a href="#">Web Team</a></li>
+          <li><a href="#">Sponsors</a></li>
+        </ul>
+
+        <a href="#" class="login-btn">
+          <svg class="login-icon-svg" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span class="login-text">Login</span>
+        </a>
+      </nav>
+    </header>
+
+    <!-- Center Hero Title -->
+    <section class="hero">
+      <h1>EVENTS</h1>
+      <div class="hero-dash"></div>
+    </section>
+
+    <!-- Cards Section -->
+    <section class="events-wrapper">
+      
+      <!-- Top Row (2 Cards) -->
+      <div class="cards-row-top">
+
+        <!-- Network Treasure Hunt -->
+        <div class="event-card">
+          <div class="card-top">
+            <div class="icon-box">
+              <img class="logo-nth" src="assets/logos/nth-logo.png" onerror="this.src='assets/logos/nth-logo.jpg';" alt="NTH" />
+            </div>
+            <div class="card-info">
+              <span class="event-name">Network Treasure Hunt</span>
+              <span class="event-date">18-19 Oct</span>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div class="prize-badge">
+              <span class="prize-text">Prize Pool: ₹5000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- National Computing Contest -->
+        <div class="event-card">
+          <div class="card-top">
+            <div class="icon-box">
+              <img 
+                class="logo-ncc" 
+                src="assets/logos/ncc-logo.png" 
+                onerror="this.src='assets/logos/ncc logo.png';" 
+                alt="NCC" 
+              />
+            </div>
+            <div class="card-info">
+              <span class="event-name">National Computing Contest</span>
+              <span class="event-date">30 Sept</span>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div class="prize-badge">
+              <span class="prize-text">Prize Pool: ₹5000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Row (3 Cards) -->
+      <div class="cards-row-bottom">
+
+        <!-- Reverse Coding -->
+        <div class="event-card">
+          <div class="card-top">
+            <div class="icon-box">
+              <img class="logo-rc" src="assets/logos/rc-logo.png" onerror="this.src='assets/logos/rc-logo.jpg';" alt="Reverse Coding" />
+            </div>
+            <div class="card-info">
+              <span class="event-name">Reverse Coding</span>
+              <span class="event-date">1 Oct</span>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div class="prize-badge">
+              <span class="prize-text">Prize Pool: ₹5000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enigma -->
+        <div class="event-card">
+          <div class="card-top">
+            <div class="icon-box">
+              <img class="logo-enigma" src="assets/logos/enigma-logo.png" onerror="this.src='assets/logos/enigma-logo.jpg';" alt="Enigma" />
+            </div>
+            <div class="card-info">
+              <span class="event-name">Enigma</span>
+              <span class="event-date">30 Sept - 1 Oct</span>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div class="prize-badge">
+              <span class="prize-text">Prize Pool: ₹2500</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Decode Rush -->
+        <div class="event-card">
+          <div class="card-top">
+            <div class="icon-box">
+              <img 
+                class="logo-decoderush" 
+                src="assets/logos/decoderush-logo.png" 
+                onerror="this.src='assets/logos/decoderush-logo.jpg';" 
+                alt="Decode Rush" 
+              />
+            </div>
+            <div class="card-info">
+              <span class="event-name">Decode Rush</span>
+              <span class="event-date">29 Sept</span>
+            </div>
+          </div>
+          <div class="card-bottom">
+            <div class="prize-badge">
+              <span class="prize-text">Prize Pool: ₹2500</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Background Direct Auto-Resolver -->
+  <script>
+    (function initBackground() {
+      const bgLayer = document.getElementById('bgLayer');
+      const candidates = [
+        'assets/backgrounds/blurred-background.png',
+        'assets/backgrounds/main-background.png',
+        'assets/background/blurred-background.png',
+        'assets/background/main-background.png',
+        'assets/backgrounds/blurred-background.jpg',
+        'assets/backgrounds/main-background.jpg'
+      ];
+
+      function tryCandidate(index) {
+        if (index >= candidates.length) return;
+        const img = new Image();
+        img.onload = function() {
+          bgLayer.style.backgroundImage = 'url("' + candidates[index] + '")';
+        };
+        img.onerror = function() {
+          tryCandidate(index + 1);
+        };
+        img.src = candidates[index];
+      }
+
+      tryCandidate(0);
+    })();
+  </script>
+
+</body>
+</html>
