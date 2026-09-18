@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
@@ -13,6 +13,7 @@ import { EventDetailPage } from './pages/EventDetailPage';
 import { WebTeamPage } from './pages/WebTeamPage';
 import { SponsorsPage } from './pages/SponsorsPage';
 import { CartPage } from './pages/CartPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -52,6 +53,7 @@ export const App = () => {
                   <Route path="/web-team" element={<WebTeamPage />} />
                   <Route path="/sponsors" element={<SponsorsPage />} />
                   <Route path="/cart" element={<CartPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignUpPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />

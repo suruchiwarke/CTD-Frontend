@@ -122,16 +122,24 @@ export const Navbar = () => {
 
                     {/* Profile Dropdown Menu */}
                     {isProfileOpen && (
-                      <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-[#1a0c2e]/95 border border-purple-500/40 backdrop-blur-xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#1a0c2e]/95 border border-purple-500/40 backdrop-blur-xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                         <div className="px-4 py-3 border-b border-purple-800/40">
-                          <p className="text-[10px] text-purple-300/70 uppercase tracking-widest font-semibold">Signed in as</p>
-                          <p className="text-sm font-bold text-white truncate mt-0.5">{user?.fullName || user?.username}</p>
-                          <p className="text-xs text-purple-300/80 truncate">{user?.email}</p>
+                          <p className="text-[10px] text-purple-300/70 uppercase tracking-widest font-semibold font-aldrich">Signed in as</p>
+                          <p className="text-sm font-bold text-white truncate mt-0.5 font-aldrich">{user?.fullName || user?.username}</p>
+                          <p className="text-xs text-purple-300/80 truncate font-aldrich">{user?.email}</p>
                         </div>
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="w-full text-left px-4 py-2.5 text-xs text-purple-100 hover:bg-purple-900/40 flex items-center gap-2.5 font-semibold uppercase tracking-wider transition-colors font-aldrich"
+                        >
+                          <UserIcon className="w-4 h-4 text-pink-400" />
+                          <span>My Profile</span>
+                        </Link>
                         <Link
                           to="/cart"
                           onClick={() => setIsProfileOpen(false)}
-                          className="w-full text-left px-4 py-2.5 text-xs text-purple-200 hover:bg-purple-900/40 flex items-center gap-2 font-semibold uppercase tracking-wider transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-xs text-purple-100 hover:bg-purple-900/40 flex items-center gap-2.5 font-semibold uppercase tracking-wider transition-colors font-aldrich"
                         >
                           <ShoppingCart className="w-4 h-4 text-pink-400" />
                           <span>My Cart {cartCount > 0 && `(${cartCount})`}</span>
@@ -141,7 +149,7 @@ export const Navbar = () => {
                             setIsProfileOpen(false);
                             logout();
                           }}
-                          className="w-full text-left px-4 py-2.5 text-xs text-red-400 hover:bg-purple-900/40 flex items-center gap-2 font-semibold uppercase tracking-wider transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-xs text-red-400 hover:bg-purple-900/40 flex items-center gap-2.5 font-semibold uppercase tracking-wider transition-colors border-t border-purple-800/30 font-aldrich"
                         >
                           <LogOut className="w-4 h-4" />
                           <span>Logout</span>
@@ -152,7 +160,7 @@ export const Navbar = () => {
                 ) : (
                   <Link
                     to="/login"
-                    className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-purple-400/40 bg-purple-950/30 text-purple-100 hover:text-white hover:border-purple-300 hover:bg-purple-900/40 hover:shadow-[0_0_15px_rgba(216,180,254,0.3)] transition-all text-xs lg:text-sm font-bold tracking-widest uppercase"
+                    className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-purple-400/40 bg-purple-950/30 text-purple-100 hover:text-white hover:border-purple-300 hover:bg-purple-900/40 hover:shadow-[0_0_15px_rgba(216,180,254,0.3)] transition-all text-xs lg:text-sm font-bold tracking-widest uppercase font-aldrich"
                   >
                     <UserIcon className="w-4 h-4 text-purple-300" />
                     <span>LOGIN</span>
