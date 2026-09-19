@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -7,11 +7,15 @@ import {
   Ticket,
   Users,
   Phone,
+  UserCheck,
 } from 'lucide-react';
 import { Button } from '../components/common/Button';
+import { DuoRegistrationModal } from '../components/common/DuoRegistrationModal';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { getEventById, eventsData } from '../data/eventsData';
+import { useCart } from '../context/CartContext';
+import { getEventById } from '../data/eventsData';
+import { teamsApi } from '../api/teams.js';
 
 const MetaRow = ({ icon: Icon, label, value, accent, children, last }) => (
   <div
@@ -46,10 +50,50 @@ export const EventDetailPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const { addToCart, cartItems } = useCart();
   const { showSuccess } = useNotification();
-  const [isRegistered, setIsRegistered] = React.useState(false);
+
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [teammate, setTeammate] = useState(null);
+  const [isDuoModalOpen, setIsDuoModalOpen] = useState(false);
+  const [modalInitialStep, setModalInitialStep] = useState('PROMPT');
 
   const event = getEventById(eventId);
+  const isDuoEvent = event?.isDuo || ['reverse-coding', 'enigma', 'ncc'].includes(event?.id);
+
+  const loadRegistrationAndTeamStatus = useCallback(() => {
+    if (!event) return;
+
+    // If user is not logged in, they cannot be registered
+    if (!isAuthenticated || !user) {
+      setIsRegistered(false);
+      setTeammate(null);
+      return;
+    }
+
+    const userKey = user.id || user.username || user.email;
+    const registered = userKey ? teamsApi.isUserRegistered(event.id, userKey) : false;
+
+    if (registered) {
+      setIsRegistered(true);
+    } else {
+      setIsRegistered(false);
+    }
+
+    if (isDuoEvent && userKey) {
+      const teamStatus = teamsApi.getDuoTeamStatusSync(event.id, userKey);
+      if (teamStatus && teamStatus.teammate) {
+        setTeammate(teamStatus.teammate);
+        setIsRegistered(true);
+      } else {
+        setTeammate(null);
+      }
+    }
+  }, [event, isAuthenticated, user, isDuoEvent]);
+
+  useEffect(() => {
+    loadRegistrationAndTeamStatus();
+  }, [loadRegistrationAndTeamStatus]);
 
   if (!event) {
     return (
@@ -69,12 +113,24 @@ export const EventDetailPage = () => {
   }
 
   const handleRegister = () => {
+    // 1. Check login first
     if (!isAuthenticated) {
       navigate('/login', { state: { returnUrl: `/events/${event.id}` } });
       return;
     }
+
+    // 2. Perform event registration in local store and cart
+    teamsApi.registerUserForEvent(event.id, user);
     setIsRegistered(true);
-    showSuccess(`Successfully registered for ${event.name}!`);
+    addToCart(event);
+    showSuccess(`Registration confirmed for ${event.name}!`);
+  };
+
+  const handleRegistrationComplete = (addedTeammate) => {
+    setIsRegistered(true);
+    if (addedTeammate) {
+      setTeammate(addedTeammate);
+    }
   };
 
   return (
@@ -86,9 +142,6 @@ export const EventDetailPage = () => {
       />
       <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none z-0" />
 
-      {/* Content area: targets one screen on large viewports, but the page can
-          still scroll if a particular browser/zoom/OS chrome leaves less
-          room than expected — nothing is ever clipped or unreachable. */}
       <main className="relative z-10 w-full pt-20 lg:min-h-screen flex flex-col">
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 flex flex-col flex-1 lg:min-h-0">
           {/* Back link row */}
@@ -154,23 +207,92 @@ export const EventDetailPage = () => {
                 </MetaRow>
               </div>
 
-              <Button
-                size="md"
-                withArrow={!isRegistered}
-                disabled={isRegistered}
-                onClick={handleRegister}
-                className="w-full flex-shrink-0"
-              >
-                {isRegistered
-                  ? 'REGISTRATION CONFIRMED'
-                  : isAuthenticated
-                  ? 'REGISTER NOW'
-                  : 'SIGN IN TO REGISTER'}
-              </Button>
+              <div className="flex flex-col gap-2 flex-shrink-0">
+                <Button
+                  size="md"
+                  withArrow={!isRegistered}
+                  disabled={isRegistered}
+                  onClick={handleRegister}
+                  className="w-full flex-shrink-0 font-aldrich tracking-widest"
+                >
+                  {isRegistered ? 'REGISTRATION CONFIRMED' : 'REGISTER NOW'}
+                </Button>
+
+                {/* Duo Teammate Controls: Enabled ONLY after registration is confirmed */}
+                {isDuoEvent && (
+                  <>
+                    {teammate ? (
+                      /* Display confirmed duo badge if teammate already added */
+                      <div className="p-3.5 rounded-2xl bg-[#1c0c2a]/80 border border-purple-400/40 backdrop-blur-md flex flex-col gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.15)] animate-in fade-in duration-300">
+                        <div className="flex items-center justify-between text-[11px] font-aldrich text-purple-200 uppercase tracking-wider">
+                          <span>
+                            Category:{' '}
+                            <strong className="text-pink-300 font-bold">
+                              {user?.category || 'Junior'}
+                            </strong>
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                            <UserCheck className="w-3.5 h-3.5" /> DUO READY
+                          </span>
+                        </div>
+                        <div className="pt-1 border-t border-purple-800/40 flex items-center justify-between">
+                          <span className="text-xs text-purple-300/70 font-aldrich">Teammate:</span>
+                          <span className="text-sm font-semibold text-white font-aldrich tracking-wide">
+                            {teammate.fullName || teammate.username}
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          onClick={() => {
+                            setModalInitialStep('ADD_TEAMMATE');
+                            setIsDuoModalOpen(true);
+                          }}
+                          className="w-full mt-1 text-xs font-aldrich tracking-widest"
+                        >
+                          CHANGE TEAM MEMBER
+                        </Button>
+                      </div>
+                    ) : (
+                      /* "ADD TEAM MEMBER" button: Disabled until registration is confirmed */
+                      <Button
+                        size="md"
+                        variant="primary"
+                        disabled={!isRegistered}
+                        onClick={() => {
+                          if (!isRegistered) return;
+                          setModalInitialStep('ADD_TEAMMATE');
+                          setIsDuoModalOpen(true);
+                        }}
+                        className={`w-full font-aldrich tracking-widest transition-all duration-300 ${
+                          !isRegistered
+                            ? 'opacity-40 cursor-not-allowed filter grayscale'
+                            : 'hover:shadow-[0_0_25px_rgba(244,114,182,0.6),0_0_40px_rgba(192,132,252,0.4)]'
+                        }`}
+                        title={!isRegistered ? 'Please register first to add a team member' : 'Add your teammate'}
+                      >
+                        ADD TEAM MEMBER
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Duo Registration Modal Flow */}
+      {isDuoEvent && (
+        <DuoRegistrationModal
+          isOpen={isDuoModalOpen}
+          onClose={() => setIsDuoModalOpen(false)}
+          event={event}
+          user={user}
+          initialStep={modalInitialStep}
+          onRegistrationComplete={handleRegistrationComplete}
+        />
+      )}
     </div>
   );
 };

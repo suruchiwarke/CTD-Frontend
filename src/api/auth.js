@@ -17,10 +17,15 @@ const saveRegisteredUsers = (users) => {
   localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
 };
 
+const hasLiveBackend = () => {
+  const url = import.meta.env.VITE_API_BASE_URL;
+  return Boolean(url && !url.includes('api.ctd.pictieee.in'));
+};
+
 export const authApi = {
   // Sign Up: Register new user
   signUp: async (payload) => {
-    if (import.meta.env.VITE_API_BASE_URL) {
+    if (hasLiveBackend()) {
       try {
         const response = await apiClient.post('/auth/signup', payload);
         return response.data;
@@ -72,7 +77,7 @@ export const authApi = {
 
   // Login: Only allowed if account exists and password matches
   login: async (payload) => {
-    if (import.meta.env.VITE_API_BASE_URL) {
+    if (hasLiveBackend()) {
       try {
         const response = await apiClient.post('/auth/login', payload);
         return response.data;
@@ -117,7 +122,7 @@ export const authApi = {
 
   // Forgot Password: Check if user exists
   forgotPassword: async (payload) => {
-    if (import.meta.env.VITE_API_BASE_URL) {
+    if (hasLiveBackend()) {
       try {
         const response = await apiClient.post('/auth/forgot-password', payload);
         return response.data;
@@ -148,7 +153,7 @@ export const authApi = {
 
   // Get Current User
   getCurrentUser: async () => {
-    if (import.meta.env.VITE_API_BASE_URL) {
+    if (hasLiveBackend()) {
       try {
         const response = await apiClient.get('/auth/me');
         return response.data;

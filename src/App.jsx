@@ -35,7 +35,7 @@ export const App = () => {
           <CartProvider>
             <div className="min-h-screen flex flex-col bg-black text-white relative selection:bg-pink-600 selection:text-white">
               <ScrollToTop />
-              
+
               {/* Global Navbar */}
               <Navbar />
 
