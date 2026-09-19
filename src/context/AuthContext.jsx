@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi } from '../api/auth';
 import { useNotification } from './NotificationContext';
 
@@ -40,9 +40,8 @@ export const AuthProvider = ({ children }) => {
         setUser(authUser);
         setToken(authToken);
 
-        const storage = payload.keepSignedIn ? localStorage : sessionStorage;
-        storage.setItem(TOKEN_KEY, authToken);
-        storage.setItem(USER_KEY, JSON.stringify(authUser));
+        localStorage.setItem(TOKEN_KEY, authToken);
+        localStorage.setItem(USER_KEY, JSON.stringify(authUser));
 
         showSuccess('Logged in successfully!');
       }
@@ -55,16 +54,9 @@ export const AuthProvider = ({ children }) => {
   const signUp = useCallback(async (payload) => {
     try {
       const response = await authApi.signUp(payload);
-      if (response && response.data) {
-        const { user: authUser, token: authToken } = response.data;
-        setUser(authUser);
-        setToken(authToken);
-
-        localStorage.setItem(TOKEN_KEY, authToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(authUser));
-
-        showSuccess('Account created successfully!');
-      }
+      // After sign up, do not log in automatically. Direct user to log in.
+      showSuccess(response?.message || 'Account created successfully! Please log in.');
+      return response;
     } catch (err) {
       showError(err.message || 'Sign up failed');
       throw err;

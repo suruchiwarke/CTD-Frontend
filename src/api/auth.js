@@ -56,7 +56,7 @@ export const authApi = {
       email: email.toLowerCase(),
       password, // In real backend, this is hashed on server
       phoneNumber: phoneNumber || '',
-      category: category || 'FE',
+      category: category || 'Junior category',
       token: 'jwt_token_' + Date.now(),
     };
 
