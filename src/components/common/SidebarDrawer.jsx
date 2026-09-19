@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { X, LogOut, ShoppingCart } from 'lucide-react';
+import { X, LogOut, ShoppingCart, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
@@ -46,18 +46,6 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
           </NavLink>
 
           <NavLink
-            to="/about"
-            onClick={onClose}
-            className={({ isActive }) =>
-              `transition-colors uppercase block w-full text-left ${
-                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
-              }`
-            }
-          >
-            ABOUT
-          </NavLink>
-
-          <NavLink
             to="/events"
             onClick={onClose}
             className={({ isActive }) =>
@@ -67,6 +55,18 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
             }
           >
             EVENTS
+          </NavLink>
+
+          <NavLink
+            to="/sponsors"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `transition-colors uppercase block w-full text-left ${
+                isActive ? 'text-white font-bold' : 'text-purple-300/80 hover:text-white'
+              }`
+            }
+          >
+            SPONSORS
           </NavLink>
 
           <NavLink
@@ -82,7 +82,7 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
           </NavLink>
 
           <NavLink
-            to="/sponsors"
+            to="/about"
             onClick={onClose}
             className={({ isActive }) =>
               `transition-colors uppercase block w-full text-left ${
@@ -90,7 +90,7 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
               }`
             }
           >
-            SPONSORS
+            ABOUT US
           </NavLink>
 
           <NavLink
@@ -108,18 +108,30 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
 
           {isAuthenticated ? (
             <div className="pt-6 border-t border-purple-500/30 flex flex-col items-start w-full space-y-4">
-              <div className="flex items-center gap-2 text-purple-200 text-sm">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
+              <NavLink
+                to="/profile"
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 text-sm transition-colors ${
+                    isActive ? 'text-white font-bold' : 'text-purple-200 hover:text-white'
+                  }`
+                }
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
                   {user?.fullName?.charAt(0) || user?.username?.charAt(0) || 'U'}
                 </div>
-                <span className="font-semibold">{user?.fullName || user?.username}</span>
-              </div>
+                <div className="flex flex-col text-left">
+                  <span className="font-semibold truncate">{user?.fullName || user?.username}</span>
+                  <span className="text-[10px] text-pink-300 uppercase tracking-widest">View Profile →</span>
+                </div>
+              </NavLink>
+
               <button
                 onClick={() => {
                   logout();
                   onClose();
                 }}
-                className="flex items-center gap-2 text-red-400 hover:text-red-300 text-base font-semibold uppercase tracking-wider"
+                className="flex items-center gap-2 text-red-400 hover:text-red-300 text-base font-semibold uppercase tracking-wider pt-2"
               >
                 <LogOut className="w-4 h-4" />
                 <span>LOGOUT</span>
@@ -142,7 +154,7 @@ export const SidebarDrawer = ({ isOpen, onClose }) => {
 
         {/* External Social / Branch Links at bottom */}
         <div className="mt-auto pt-8 border-t border-purple-500/20 flex flex-col items-start gap-4 w-full">
-          <p className="text-xs text-purple-300/60 uppercase tracking-wider text-left">
+          <p className="text-xs text-purple-300/60 uppercase tracking-wider text-left font-aldrich">
             PICT IEEE Student Branch
           </p>
           <div className="flex items-center gap-4">

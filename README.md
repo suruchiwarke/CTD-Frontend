@@ -1,8 +1,8 @@
-# Credenz Tech Dayz (CTD) — Frontend
+﻿# Credenz Tech Dayz (CTD) — Frontend
 
 Welcome to the official frontend repository for **Credenz Tech Dayz (CTD)**, the premier annual technical fest organized by the **PICT IEEE Student Branch (PISB)**.
 
-This application is built with **React**, **Vite**, **Tailwind CSS**, and **JavaScript (JSX)**. It features a modern cosmic glassmorphic design with custom typography, glowing neon borders, responsive layouts, and a modular architecture ready for backend and database integration.
+This application is built with **React**, **Vite**, **Tailwind CSS**, and **JavaScript (JSX)**. It features a modern cosmic glassmorphic design with custom typography, glowing neon borders, single-screen responsive layouts, dynamic routing, and a modular architecture ready for backend and database integration.
 
 ---
 
@@ -33,9 +33,11 @@ CTD Frontend/
 │   ├── components/                       # Reusable UI components
 │   │   └── common/
 │   │       ├── Button.jsx                # Gradient pill action buttons with spinner
+│   │       ├── EventIcons.jsx            # Custom neon SVG badges for events
 │   │       ├── FormError.jsx             # Top-right Figma peach error notification card
+│   │       ├── GeneralInstructionsModal.jsx # First-visit cosmic instructions modal popup
 │   │       ├── Input.jsx                 # Glassmorphic input with icons & eye toggle
-│   │       ├── Navbar.jsx                # Corner-aligned navbar with responsive menu
+│   │       ├── Navbar.jsx                # Corner-aligned navbar with cart & profile menu
 │   │       ├── Select.jsx                # Custom styled category dropdown
 │   │       ├── SidebarDrawer.jsx         # Left-aligned slide-out mobile drawer
 │   │       └── SocialLinks.jsx           # Floating Instagram & LinkedIn buttons
@@ -45,25 +47,32 @@ CTD Frontend/
 │   │   ├── CartContext.jsx               # Cart state, items storage, and event handlers
 │   │   └── NotificationContext.jsx       # Global banner notifications & error toasts
 │   │
+│   ├── data/                             # Static event datasets & configurations
+│   │   └── eventsData.js                 # Central single source of truth for all 5 CTD events
+│   │
 │   ├── pages/                            # Top-level route pages
 │   │   ├── AboutPage.jsx                 # CTD & IEEE info (Single-screen desktop view)
 │   │   ├── CartPage.jsx                  # Events in cart view & empty cart cosmic illustration
-│   │   ├── EventsPage.jsx                # Events title with empty canvas for teammates
+│   │   ├── DecodeRushPage.jsx            # Decode Rush legacy redirect handler
+│   │   ├── EventDetailPage.jsx           # Dynamic individual event rules & registration
+│   │   ├── EventsPage.jsx                # Grid view of all 5 Credenz Tech Dayz events
 │   │   ├── ForgotPasswordPage.jsx        # Password recovery form with error banner
-│   │   ├── HomePage.jsx                  # Hero section with CREDENZ title & dates
+│   │   ├── HomePage.jsx                  # Hero section with instructions popup & dates
 │   │   ├── LoginPage.jsx                 # Login card with validation & error handling
+│   │   ├── ProfilePage.jsx               # User profile with verified & paid registered events
 │   │   ├── SignUpPage.jsx                # User registration form with category select
-│   │   ├── SponsorsPage.jsx              # Title & Co-Sponsor sections for teammates
-│   │   └── WebTeamPage.jsx               # Web team title with empty canvas for teammates
+│   │   ├── SponsorsPage.jsx              # Title & Co-Sponsor showcase
+│   │   └── WebTeamPage.jsx               # Web team members showcase
 │   │
 │   ├── styles/                           # Global CSS & Tailwind utilities
 │   │   └── globals.css                   # Custom @font-face, glassmorphism & neon glows
 │   │
 │   ├── App.jsx                           # Main router configuration & providers
-│   └── main.jsx                          # React DOM mounting entry point
-│
+│   │── main.jsx                          # React DOM mounting entry point
+│   │
 ├── .env                                  # Local environment variables
 ├── .env.example                          # Environment template for backend URL
+├── .gitignore                            # Git exclusion rules (node_modules, dist, env)
 ├── index.html                            # Root HTML template with preconnects & metadata
 ├── package.json                          # Project dependencies & npm scripts
 ├── postcss.config.js                     # PostCSS plugins (Tailwind CSS, Autoprefixer)
@@ -82,9 +91,10 @@ CTD Frontend/
 
 ### Installation
 
-1. Clone or navigate to the project root directory:
+1. Clone the repository:
    ```bash
-   cd "CTD Frontend"
+   git clone https://github.com/suruchiwarke/CTD-Frontend.git
+   cd "CTD-Frontend"
    ```
 
 2. Install all dependencies:
@@ -117,7 +127,8 @@ CTD Frontend/
 - Displayed with the crisp `main-background.png`.
 - Features the iconic **CREDENZ** gradient title (Tungsten bold) and **TECH DAYZ** subtitle.
 - Event dates: **5 OCT - 7 OCT 2026** with a glowing gradient divider.
-- Bottom-left floating **Instagram** and **LinkedIn** buttons.
+- **General Instructions Popup**: Automatically pops up on first visit with student category guidelines, team payment rules, cart instructions, and a "Got it →" dismiss button.
+- Bottom-left floating **Instagram** and **LinkedIn** buttons + **Instructions** trigger.
 - Bottom-right **— 2026** event tag.
 
 ### 2. About Us (`/about`)
@@ -125,41 +136,46 @@ CTD Frontend/
 - **CTD Overview**: Large CTD outline logo with techfest description.
 - **IEEE Section**: Official white IEEE logo with organization overview.
 
-### 3. Events Page (`/events`)
-- Displays the **EVENTS** title with glowing gradient underline.
-- Clean canvas prepared for teammates to add their event cards.
+### 3. Events & Event Detail Pages (`/events`, `/events/:eventId`)
+- Displays all 5 Credenz Tech Dayz events:
+  - **Reverse Coding** (Technical)
+  - **Enigma** (Non-Technical)
+  - **National Computing Contest - NCC** (Technical)
+  - **Network Treasure Hunt - NTH** (Online Cryptic)
+  - **Decode Rush** (Treasure Hunt)
+- Dynamic individual event detail pages with event descriptions, eligibility, fees, rules, prizes, and contact persons.
 
-### 4. Web Team Page (`/web-team`)
-- Displays the **WEB TEAM** title with glowing gradient underline.
-- Clean canvas prepared for teammates to add team member components.
+### 4. Cart Page (`/cart`)
+- Dedicated cart option in the navigation bar (`🛒 CART`) with glowing active underline.
+- Centered glassmorphic card with neon pink/magenta border.
+- Custom glowing empty cart illustration with radiating light rays when no events are added.
+- Powered by `CartContext` for seamless event registration management.
 
-### 5. Sponsors Page (`/sponsors`)
-- Displays **Title Sponsor** and **Co-Sponsor** headings with glowing underlines.
-- Clean canvas prepared for teammates to add sponsor logos and links.
+### 5. Profile Page (`/profile`)
+- Designed as a **single-screen desktop layout** with no scrolling.
+- Displays user information: Avatar with initials and verified account badge, Full Name, Username, Registered Email, Academic Category (*Junior (FE/SE)* / *Senior (TE/BE)*), and Phone Number.
+- **Registered Events Section**: Automatically lists confirmed events with `✓ Payment Verified` status badges once registered and verified by the backend.
+- Clean canvas displayed when no events are registered.
 
-### 6. Authentication Flows
+### 6. Web Team (`/web-team`) & Sponsors (`/sponsors`)
+- Web team member showcase with interactive social links.
+- Title Sponsor and Co-Sponsor showcase sections.
+
+### 7. Authentication Flows
 - **Sign Up (`/signup`)**:
   - Fields: Username, Full Name, Email, Password, Phone Number, and Student Category (`FE`, `SE`, `TE`, `BE`, `Other`).
-  - Creates the user in local state / database.
+  - Creates user session with local storage fallback and REST backend compatibility.
 - **Login (`/login`)**:
-  - Requires sign-up first. If an unregistered email attempts login, it alerts: `"No account found with this email. Please sign up first."`
-  - Validates password against the registered account.
+  - Requires sign-up first. Validates credentials and redirects upon success.
 - **Forgot Password (`/forgot-password`)**:
-  - Validates email existence and triggers password recovery instructions.
-- **Top-Right Profile Icon**:
-  - Once logged in, only a **circular profile avatar icon** appears at the top-right corner.
-  - Clicking it opens a dropdown menu displaying user details and a **Logout** button.
+  - Validates email existence and triggers recovery flow.
+- **Corner Profile Avatar & Dropdown**:
+  - Displays circular avatar with chevron dropdown indicator when logged in.
+  - Dropdown menu contains links to **My Profile**, **My Cart**, and **Logout**.
 
-### 7. Figma Error Banner (`FormError.jsx`)
-- Reusable top-right notification matching Figma `Screenshot 2026-09-11 181114.png`.
-- Styled with warm peach background (`#F8DFD4`), dark crimson border (`#8B2626`), circled cross icon, and dark red uppercase text.
-
-### 8. Navigation & Links
-- **CTD Logo** $\rightarrow$ `/` (Internal Home navigation).
-- **PICT IEEE Logo** $\rightarrow$ `https://pictieee.in/` (Opens in new tab).
-- **Instagram Logo** $\rightarrow$ `https://www.instagram.com/pictieee/?hl=en` (Opens in new tab).
-- **LinkedIn Logo** $\rightarrow$ `https://www.linkedin.com/company/pisbieee/posts/?feedView=all` (Opens in new tab).
-- **Hamburger Menu (3 Lines)** $\rightarrow$ Appears in top-right for Auth pages and mobile viewports with left-aligned navigation links.
+### 8. Navigation & Mobile Responsiveness
+- **Desktop Navbar**: Corner-aligned brand logos (left), center navigation links, and login / circular profile avatar with cart (right).
+- **Mobile Drawer (`SidebarDrawer.jsx`)**: Left-aligned slide-out drawer with direct access to all pages, cart, profile, and social channels.
 
 ---
 
@@ -179,7 +195,7 @@ The frontend is built with a decoupled API architecture in `src/api/` and `src/c
 - `POST /auth/signup` — `{ username, fullName, email, password, phoneNumber, category }`
 - `POST /auth/login` — `{ email, password }`
 - `POST /auth/forgot-password` — `{ email }`
-- `GET /auth/me` — Returns current authenticated user object
+- `GET /auth/me` — Returns current authenticated user object (including `registeredEvents`)
 
 ---
 
