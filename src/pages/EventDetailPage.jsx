@@ -51,7 +51,7 @@ export const EventDetailPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { addToCart, cartItems } = useCart();
-  const { showSuccess } = useNotification();
+  const { showSuccess, showError } = useNotification();
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [teammate, setTeammate] = useState(null);
@@ -120,10 +120,22 @@ export const EventDetailPage = () => {
     }
 
     // 2. Perform event registration in local store and cart
-    teamsApi.registerUserForEvent(event.id, user);
+    try {
+      teamsApi.registerUserForEvent(event.id, user);
+    } catch (err) {
+      // Registration failed: stay unregistered, do NOT open the team-member popup
+      showError(err?.message || 'Registration failed. Please try again.');
+      return;
+    }
     setIsRegistered(true);
     addToCart(event);
     showSuccess(`Registration confirmed for ${event.name}!`);
+
+    // 3. Registration succeeded: ask duo-event users whether to add a team member
+    if (isDuoEvent) {
+      setModalInitialStep('PROMPT');
+      setIsDuoModalOpen(true);
+    }
   };
 
   const handleRegistrationComplete = (addedTeammate) => {
@@ -218,63 +230,38 @@ export const EventDetailPage = () => {
                   {isRegistered ? 'REGISTRATION CONFIRMED' : 'REGISTER NOW'}
                 </Button>
 
-                {/* Duo Teammate Controls: Enabled ONLY after registration is confirmed */}
-                {isDuoEvent && (
-                  <>
-                    {teammate ? (
-                      /* Display confirmed duo badge if teammate already added */
-                      <div className="p-3.5 rounded-2xl bg-[#1c0c2a]/80 border border-purple-400/40 backdrop-blur-md flex flex-col gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.15)] animate-in fade-in duration-300">
-                        <div className="flex items-center justify-between text-[11px] font-aldrich text-purple-200 uppercase tracking-wider">
-                          <span>
-                            Category:{' '}
-                            <strong className="text-pink-300 font-bold">
-                              {user?.category || 'Junior'}
-                            </strong>
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
-                            <UserCheck className="w-3.5 h-3.5" /> DUO READY
-                          </span>
-                        </div>
-                        <div className="pt-1 border-t border-purple-800/40 flex items-center justify-between">
-                          <span className="text-xs text-purple-300/70 font-aldrich">Teammate:</span>
-                          <span className="text-sm font-semibold text-white font-aldrich tracking-wide">
-                            {teammate.fullName || teammate.username}
-                          </span>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => {
-                            setModalInitialStep('ADD_TEAMMATE');
-                            setIsDuoModalOpen(true);
-                          }}
-                          className="w-full mt-1 text-xs font-aldrich tracking-widest"
-                        >
-                          CHANGE TEAM MEMBER
-                        </Button>
-                      </div>
-                    ) : (
-                      /* "ADD TEAM MEMBER" button: Disabled until registration is confirmed */
-                      <Button
-                        size="md"
-                        variant="primary"
-                        disabled={!isRegistered}
-                        onClick={() => {
-                          if (!isRegistered) return;
-                          setModalInitialStep('ADD_TEAMMATE');
-                          setIsDuoModalOpen(true);
-                        }}
-                        className={`w-full font-aldrich tracking-widest transition-all duration-300 ${
-                          !isRegistered
-                            ? 'opacity-40 cursor-not-allowed filter grayscale'
-                            : 'hover:shadow-[0_0_25px_rgba(244,114,182,0.6),0_0_40px_rgba(192,132,252,0.4)]'
-                        }`}
-                        title={!isRegistered ? 'Please register first to add a team member' : 'Add your teammate'}
-                      >
-                        ADD TEAM MEMBER
-                      </Button>
-                    )}
-                  </>
+                {/* Duo badge: shown once a teammate is added (popup opens after REGISTER NOW) */}
+                {isDuoEvent && teammate && (
+                <div className="p-3.5 rounded-2xl bg-[#1c0c2a]/80 border border-purple-400/40 backdrop-blur-md flex flex-col gap-2 shadow-[0_4px_20px_rgba(168,85,247,0.15)] animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between text-[11px] font-aldrich text-purple-200 uppercase tracking-wider">
+                    <span>
+                      Category:{' '}
+                      <strong className="text-pink-300 font-bold">
+                        {user?.category || 'Junior'}
+                      </strong>
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                      <UserCheck className="w-3.5 h-3.5" /> DUO READY
+                    </span>
+                  </div>
+                  <div className="pt-1 border-t border-purple-800/40 flex items-center justify-between">
+                    <span className="text-xs text-purple-300/70 font-aldrich">Teammate:</span>
+                    <span className="text-sm font-semibold text-white font-aldrich tracking-wide">
+                      {teammate.fullName || teammate.username}
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                      setModalInitialStep('ADD_TEAMMATE');
+                      setIsDuoModalOpen(true);
+                    }}
+                    className="w-full mt-1 text-xs font-aldrich tracking-widest"
+                  >
+                    CHANGE TEAM MEMBER
+                  </Button>
+                </div>
                 )}
               </div>
             </div>
