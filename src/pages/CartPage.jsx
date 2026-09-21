@@ -1,9 +1,11 @@
-﻿import React from 'react';
-import { ShoppingCart } from 'lucide-react';
+import React from 'react';
+import { ShoppingCart, Trash2, Users } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 export const CartPage = () => {
-  const { cartItems } = useCart();
+  const { cartItems, removeFromCart } = useCart();
+  const navigate = useNavigate();
   const isEmpty = !cartItems || cartItems.length === 0;
 
   return (
@@ -85,8 +87,52 @@ export const CartPage = () => {
             </div>
           ) : (
             /* Populated cart list if events are present */
-            <div className="flex-1 py-6 space-y-4">
-              {/* Event items list can be rendered here */}
+            <div className="flex-1 py-8 space-y-5">
+              {cartItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="flex items-center justify-between bg-[#2a133d]/40 border border-pink-500/30 rounded-2xl p-4 backdrop-blur-md hover:bg-[#2a133d]/60 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Icon Box */}
+                    <div className="w-12 h-12 rounded-xl bg-[#3f1954]/50 border border-pink-400/20 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-6 h-6 text-pink-100" />
+                    </div>
+                    {/* Event Name & Subtext */}
+                    <div className="flex flex-col">
+                      <h3 className="text-white font-bold tracking-wide uppercase">
+                        {item.shortName || item.name}
+                      </h3>
+                      <p className="text-xs text-pink-200/60 mt-0.5">
+                        PICT IEEE Student Branch
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Price & Delete Button */}
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <span className="text-xl sm:text-2xl font-bold text-pink-200">
+                      {item.fee !== "FREE" && !item.fee.includes('₹') ? '₹' : ''}{item.fee.split(' ')[0]}
+                    </span>
+                    <button 
+                      onClick={() => removeFromCart(item.id)}
+                      className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center hover:bg-pink-500/30 hover:border-pink-500/50 transition-all text-pink-300 group"
+                    >
+                      <Trash2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Checkout Button */}
+              <div className="pt-6 mt-4 border-t border-pink-500/20 flex justify-end">
+                <button
+                  onClick={() => navigate('/checkout')}
+                  className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-bold text-white tracking-wide hover:from-pink-400 hover:to-purple-400 shadow-[0_0_15px_rgba(244,114,182,0.4)] transition-all hover:scale-105"
+                >
+                  PROCEED TO CHECKOUT
+                </button>
+              </div>
             </div>
           )}
         </div>
