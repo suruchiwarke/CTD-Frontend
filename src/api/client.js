@@ -31,7 +31,28 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // Backend returned an error response
       const data = error.response.data;
-      if (typeof data === 'string') {
+      const detail = data?.detail;
+
+      // 401 on a protected call = expired/invalid token. Login/register/OTP
+      // endpoints also return 401 for bad credentials, so leave /auth/* alone.
+      const url = error.config?.url || '';
+      if (
+        error.response.status === 401 &&
+        !(url.startsWith('/auth/') && !url.startsWith('/auth/me'))
+      ) {
+        for (const store of [localStorage, sessionStorage]) {
+          store.removeItem('ctd_auth_token');
+          store.removeItem('ctd_user');
+        }
+        if (window.location.pathname !== '/login') window.location.assign('/login');
+      }
+
+      // FastAPI: `detail` is a string, or an array of {msg} for 422
+      if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (Array.isArray(detail) && detail[0]?.msg) {
+        errorMessage = detail[0].msg;
+      } else if (typeof data === 'string') {
         errorMessage = data;
       } else if (data?.message) {
         errorMessage = data.message;

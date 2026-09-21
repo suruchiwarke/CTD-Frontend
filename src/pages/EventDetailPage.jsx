@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -15,7 +15,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useCart } from '../context/CartContext';
 import { getEventById } from '../data/eventsData';
-import { teamsApi } from '../api/teams.js';
+import { profileApi } from '../api/cart';
 
 const MetaRow = ({ icon: Icon, label, value, accent, children, last }) => (
   <div
@@ -50,50 +50,41 @@ export const EventDetailPage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const { addToCart, cartItems } = useCart();
-  const { showSuccess, showError } = useNotification();
+  const { cartItems } = useCart();
+  const { showError } = useNotification();
 
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [teammate, setTeammate] = useState(null);
+  const [myEvents, setMyEvents] = useState([]);
   const [isDuoModalOpen, setIsDuoModalOpen] = useState(false);
-  const [modalInitialStep, setModalInitialStep] = useState('PROMPT');
 
   const event = getEventById(eventId);
   const isDuoEvent = event?.isDuo || ['reverse-coding', 'enigma', 'ncc'].includes(event?.id);
 
-  const loadRegistrationAndTeamStatus = useCallback(() => {
-    if (!event) return;
-
-    // If user is not logged in, they cannot be registered
-    if (!isAuthenticated || !user) {
-      setIsRegistered(false);
-      setTeammate(null);
+  // Events the user is already registered for (verified). A failed load is
+  // ignored: the backend still rejects duplicates when adding to the cart.
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setMyEvents([]);
       return;
     }
+    profileApi
+      .myEvents()
+      .then((data) => setMyEvents(data.my_events || []))
+      .catch(() => {});
+  }, [isAuthenticated]);
 
-    const userKey = user.id || user.username || user.email;
-    const registered = userKey ? teamsApi.isUserRegistered(event.id, userKey) : false;
-
-    if (registered) {
-      setIsRegistered(true);
-    } else {
-      setIsRegistered(false);
-    }
-
-    if (isDuoEvent && userKey) {
-      const teamStatus = teamsApi.getDuoTeamStatusSync(event.id, userKey);
-      if (teamStatus && teamStatus.teammate) {
-        setTeammate(teamStatus.teammate);
-        setIsRegistered(true);
-      } else {
-        setTeammate(null);
-      }
-    }
-  }, [event, isAuthenticated, user, isDuoEvent]);
-
-  useEffect(() => {
-    loadRegistrationAndTeamStatus();
-  }, [loadRegistrationAndTeamStatus]);
+  // Registered = in the backend cart or already verified/linked to the user
+  const entry =
+    event?.backendName &&
+    (myEvents.find((e) => e.event_name === event.backendName) ||
+      cartItems.find((e) => e.event_name === event.backendName));
+  const isRegistered = Boolean(entry);
+  // A non-leader teammate (is_team_leader === false) sees the leader instead of themselves
+  const teammate =
+    entry?.is_team_leader === false
+      ? { fullName: entry.person1 }
+      : entry?.person2
+      ? { fullName: entry.person2, username: entry.person2_username }
+      : null;
 
   if (!event) {
     return (
@@ -119,30 +110,14 @@ export const EventDetailPage = () => {
       return;
     }
 
-    // 2. Perform event registration in local store and cart
-    try {
-      teamsApi.registerUserForEvent(event.id, user);
-    } catch (err) {
-      // Registration failed: stay unregistered, do NOT open the team-member popup
-      showError(err?.message || 'Registration failed. Please try again.');
+    // 2. Only rc / ncc / enigma exist on the backend
+    if (!event.backendName) {
+      showError(`Online registration for ${event.name} is not open yet.`);
       return;
     }
-    setIsRegistered(true);
-    addToCart(event);
-    showSuccess(`Registration confirmed for ${event.name}!`);
 
-    // 3. Registration succeeded: ask duo-event users whether to add a team member
-    if (isDuoEvent) {
-      setModalInitialStep('PROMPT');
-      setIsDuoModalOpen(true);
-    }
-  };
-
-  const handleRegistrationComplete = (addedTeammate) => {
-    setIsRegistered(true);
-    if (addedTeammate) {
-      setTeammate(addedTeammate);
-    }
+    // 3. Ask whether to add a teammate; the modal adds the event to the cart
+    setIsDuoModalOpen(true);
   };
 
   return (
@@ -250,17 +225,6 @@ export const EventDetailPage = () => {
                       {teammate.fullName || teammate.username}
                     </span>
                   </div>
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => {
-                      setModalInitialStep('ADD_TEAMMATE');
-                      setIsDuoModalOpen(true);
-                    }}
-                    className="w-full mt-1 text-xs font-aldrich tracking-widest"
-                  >
-                    CHANGE TEAM MEMBER
-                  </Button>
                 </div>
                 )}
               </div>
@@ -276,8 +240,6 @@ export const EventDetailPage = () => {
           onClose={() => setIsDuoModalOpen(false)}
           event={event}
           user={user}
-          initialStep={modalInitialStep}
-          onRegistrationComplete={handleRegistrationComplete}
         />
       )}
     </div>

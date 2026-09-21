@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   User as UserIcon,
@@ -13,16 +13,38 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { profileApi } from '../api/cart';
+import { getEventByBackendName } from '../data/eventsData';
+import { Button } from '../components/common/Button';
+import { DuoRegistrationModal } from '../components/common/DuoRegistrationModal';
 
 export const ProfilePage = () => {
   const { user, isAuthenticated } = useAuth();
   const [filter, setFilter] = useState('all');
+  const [registeredEvents, setRegisteredEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [teammateEvent, setTeammateEvent] = useState(null); // event whose teammate is being changed
 
-  // Real registered events only - NO dummy data
-  const registeredEvents = user?.registeredEvents || [];
+  const loadEvents = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await profileApi.myEvents();
+      setRegisteredEvents(data.my_events || []);
+      setLoadError('');
+    } catch (err) {
+      setLoadError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) loadEvents();
+  }, [isAuthenticated, loadEvents]);
 
   const filteredEvents = registeredEvents.filter((ev) => {
-    if (filter === 'verified') return ev.status === 'VERIFIED';
+    if (filter === 'verified') return ev.isVerified;
     return true;
   });
 
@@ -179,46 +201,90 @@ export const ProfilePage = () => {
         <div className="flex-1 w-full flex flex-col justify-center min-h-[140px] overflow-hidden">
           {filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[360px] pr-1">
-              {filteredEvents.map((event) => (
-                <div
-                  key={event.registrationId || event.id}
-                  className="bg-[#12071f]/80 border border-pink-500/40 rounded-2xl p-4 backdrop-blur-xl shadow-[0_0_20px_rgba(244,114,182,0.15)] flex flex-col justify-between"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-900/50 border border-purple-400/40 text-purple-200 text-[10px] font-bold tracking-widest uppercase font-aldrich">
-                      {event.category || 'EVENT'}
-                    </span>
-                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-400/60 text-emerald-300 text-[11px] font-semibold font-aldrich">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      <span>Payment Verified</span>
+              {filteredEvents.map((event) => {
+                const meta = getEventByBackendName(event.event_name);
+                return (
+                  <div
+                    key={event.id}
+                    className="bg-[#12071f]/80 border border-pink-500/40 rounded-2xl p-4 backdrop-blur-xl shadow-[0_0_20px_rgba(244,114,182,0.15)] flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-purple-900/50 border border-purple-400/40 text-purple-200 text-[10px] font-bold tracking-widest uppercase font-aldrich">
+                        {meta?.type || 'EVENT'}
+                      </span>
+                      {event.isVerified ? (
+                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-400/60 text-emerald-300 text-[11px] font-semibold font-aldrich">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <span>Payment Verified</span>
+                        </div>
+                      ) : (
+                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-950/60 border border-amber-400/60 text-amber-300 text-[11px] font-semibold font-aldrich">
+                          <Clock className="w-3 h-3 text-amber-400" />
+                          <span>Pending Verification</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  <h3 className="font-tungsten text-xl sm:text-2xl tracking-wider text-white uppercase font-bold">
-                    {event.name}
-                  </h3>
+                    <h3 className="font-tungsten text-xl sm:text-2xl tracking-wider text-white uppercase font-bold">
+                      {meta?.name || event.event_name.toUpperCase()}
+                    </h3>
 
-                  <div className="flex items-center justify-between text-xs text-purple-200/80 font-aldrich mt-2 pt-2 border-t border-purple-800/40">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-pink-400" />
-                      <span>{event.date}</span>
+                    <p className="text-xs text-purple-200/80 font-aldrich mt-1">
+                      {event.team_name && <span>Team {event.team_name} · </span>}
+                      {event.is_team_leader
+                        ? event.person2
+                          ? `With ${event.person2}`
+                          : 'Solo'
+                        : `Team led by ${event.person1}`}
+                    </p>
+
+                    <div className="flex items-center justify-between text-xs text-purple-200/80 font-aldrich mt-2 pt-2 border-t border-purple-800/40">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3 h-3 text-pink-400" />
+                        <span>{meta?.date}</span>
+                      </div>
+                      <span className="text-purple-300/70 font-mono text-[11px]">ID: {event.id}</span>
                     </div>
-                    {event.registrationId && (
-                      <span className="text-purple-300/70 font-mono text-[11px]">ID: {event.registrationId}</span>
+
+                    {event.is_team_leader && (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => setTeammateEvent(event)}
+                        className="w-full mt-3 text-xs font-aldrich tracking-widest"
+                      >
+                        {event.person2 ? 'CHANGE TEAMMATE' : 'ADD TEAMMATE'}
+                      </Button>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             /* Clean Empty Canvas when no events are registered (No Dummy Data) */
             <div className="w-full flex-1 flex flex-col items-center justify-center text-center">
-              {/* Clean Empty Canvas */}
+              {isLoading && (
+                <p className="text-sm text-purple-200/70 font-aldrich tracking-wide">Loading your events...</p>
+              )}
+              {!isLoading && loadError && (
+                <p className="text-sm text-red-300 font-aldrich tracking-wide">{loadError}</p>
+              )}
             </div>
           )}
         </div>
 
       </main>
+
+      {teammateEvent && (
+        <DuoRegistrationModal
+          isOpen
+          mode="change"
+          onClose={() => setTeammateEvent(null)}
+          event={getEventByBackendName(teammateEvent.event_name)}
+          user={user}
+          onRegistrationComplete={loadEvents}
+        />
+      )}
     </div>
   );
 };

@@ -1,10 +1,30 @@
-﻿import React from 'react';
-import { ShoppingCart } from 'lucide-react';
+﻿import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ShoppingCart, Trash2, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { getEventByBackendName } from '../data/eventsData';
+import { Button } from '../components/common/Button';
 
 export const CartPage = () => {
-  const { cartItems } = useCart();
+  const navigate = useNavigate();
+  const { cartItems, bill, isLoading, error, removeFromCart } = useCart();
   const isEmpty = !cartItems || cartItems.length === 0;
+
+  const [actionError, setActionError] = useState('');
+  const [busy, setBusy] = useState('');
+  const shownError = actionError || error;
+
+  const handleRemove = async (eventName) => {
+    setActionError('');
+    setBusy(eventName);
+    try {
+      await removeFromCart(eventName);
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setBusy('');
+    }
+  };
 
   return (
     <div className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-black selection:bg-pink-500 selection:text-white">
@@ -41,8 +61,19 @@ export const CartPage = () => {
             </div>
           </div>
 
+          {shownError && (
+            <div className="w-full mt-5 p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-200 text-xs font-aldrich flex items-center gap-2.5 text-left">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <span>{shownError}</span>
+            </div>
+          )}
+
           {/* Empty Cart State */}
-          {isEmpty ? (
+          {isEmpty && isLoading ? (
+            <div className="flex-1 flex items-center justify-center py-10 my-auto">
+              <p className="text-sm text-purple-200/70 font-aldrich tracking-wide">Loading your cart...</p>
+            </div>
+          ) : isEmpty ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-10 sm:py-14 my-auto">
               
               {/* Glowing Empty Cart Illustration with Light Rays */}
@@ -86,7 +117,52 @@ export const CartPage = () => {
           ) : (
             /* Populated cart list if events are present */
             <div className="flex-1 py-6 space-y-4">
-              {/* Event items list can be rendered here */}
+              {cartItems.map((item) => {
+                const meta = getEventByBackendName(item.event_name);
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-purple-500/30 bg-purple-950/40 p-4"
+                  >
+                    <div className="min-w-0">
+                      <h3 className="font-tungsten text-xl sm:text-2xl tracking-wider text-white uppercase font-bold truncate">
+                        {meta?.name || item.event_name.toUpperCase()}
+                      </h3>
+                      <p className="font-aldrich text-xs text-purple-200/70 mt-1 truncate">
+                        {item.team_name ? `Team ${item.team_name} · ` : ''}
+                        {item.person2 ? `With ${item.person2}` : 'Solo'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="font-aldrich text-sm font-bold text-pink-300">
+                        {item.price > 0 ? `₹${item.price}` : 'FREE'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(item.event_name)}
+                        disabled={busy === item.event_name}
+                        className="p-1.5 rounded-full text-purple-300 hover:text-red-300 hover:bg-purple-950/60 transition-colors disabled:opacity-50"
+                        aria-label={`Remove ${meta?.name || item.event_name} from cart`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="flex items-center justify-between pt-4 border-t border-purple-800/40 font-aldrich">
+                <span className="text-xs uppercase tracking-widest text-purple-300/70">Total</span>
+                <span className="text-xl font-bold text-white">{bill > 0 ? `₹${bill}` : 'FREE'}</span>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => navigate('/checkout')}
+                className="w-full font-aldrich tracking-widest"
+              >
+                CHECKOUT
+              </Button>
             </div>
           )}
         </div>

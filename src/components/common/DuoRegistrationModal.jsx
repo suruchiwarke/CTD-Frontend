@@ -1,49 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Users, UserCheck, ShoppingCart, AlertCircle } from 'lucide-react';
+import { X, Users, UserCheck, ShoppingCart, AlertCircle, Mail } from 'lucide-react';
 import { Input } from './Input';
 import { Button } from './Button';
-import { teamsApi } from '../../api/teams.js';
+import { profileApi } from '../../api/cart';
+import { useCart } from '../../context/CartContext';
 import { useNotification } from '../../context/NotificationContext';
 
+// mode="add"    -> add `event` to the backend cart (solo or with a teammate)
+// mode="change" -> change the teammate of an already-registered event (team leader only)
 export const DuoRegistrationModal = ({
   isOpen,
   onClose,
   event,
   user,
-  initialStep = 'PROMPT',
+  mode = 'add',
   onRegistrationComplete,
 }) => {
   const navigate = useNavigate();
-  const { showSuccess } = useNotification();
-
-  const getGroup = (c) => {
-    const s = String(c || '').toLowerCase().trim();
-    if (
-      s === 'te' ||
-      s === 'be' ||
-      s === 'senior' ||
-      s.includes('third') ||
-      s.includes('final') ||
-      s === 'te/be'
-    ) {
-      return 'Senior';
-    }
-    return 'Junior';
-  };
-
-  const primaryGroup = getGroup(user?.category);
+  const { showSuccess, showError } = useNotification();
+  const { addToCart } = useCart();
+  const isChange = mode === 'change';
+  const initialStep = isChange ? 'ADD_TEAMMATE' : 'PROMPT';
 
   // Steps: 'PROMPT' | 'ADD_TEAMMATE' | 'CHECKOUT_PROMPT'
   const [step, setStep] = useState(initialStep);
   const [teamName, setTeamName] = useState('');
-  const [teammateIdentifier, setTeammateIdentifier] = useState('');
+  const [teammate, setTeammate] = useState({ name: '', username: '', email: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setStep(initialStep || 'PROMPT');
+      setStep(initialStep);
       setError('');
     }
   }, [isOpen, initialStep]);
@@ -51,11 +40,16 @@ export const DuoRegistrationModal = ({
   if (!isOpen || !event) return null;
 
   const handleClose = () => {
-    setStep(initialStep || 'PROMPT');
+    setStep(initialStep);
     setError('');
     setTeamName('');
-    setTeammateIdentifier('');
+    setTeammate({ name: '', username: '', email: '' });
     onClose();
+  };
+
+  const handleTeammateChange = (e) => {
+    setTeammate((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (error) setError('');
   };
 
   const handlePromptYes = () => {
@@ -63,38 +57,61 @@ export const DuoRegistrationModal = ({
     setStep('ADD_TEAMMATE');
   };
 
-  const handlePromptNo = () => {
-    if (onRegistrationComplete) onRegistrationComplete(null);
-    showSuccess(`Registered for ${event.name} as a solo participant!`);
-    setStep('CHECKOUT_PROMPT');
+  const person1 = user?.fullName || user?.username;
+
+  const handlePromptNo = async () => {
+    setIsLoading(true);
+    try {
+      await addToCart({ event_name: event.backendName, person1 });
+      if (onRegistrationComplete) onRegistrationComplete();
+      showSuccess(`Registered for ${event.name} as a solo participant!`);
+      setStep('CHECKOUT_PROMPT');
+    } catch (err) {
+      showError(err.message || 'Failed to add event to cart.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAddTeammateSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const query = teammateIdentifier.trim();
-    if (!query) {
-      setError('Please enter your teammate username, PRN, or email.');
+    const name = teammate.name.trim();
+    const username = teammate.username.trim();
+    const email = teammate.email.trim();
+    if (!name || !email) {
+      setError("Please enter your teammate's name and email.");
+      return;
+    }
+    if (email.toLowerCase() === (user?.email || '').toLowerCase()) {
+      setError('You cannot add yourself as your teammate.');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Use user.id if available, else fall back to username or email
-      const primaryId = user?.id || user?.username || user?.email || 'usr_guest';
-
-      const response = await teamsApi.addTeammate({
-        eventId: event.id,
-        primaryUserId: primaryId,
-        teammateIdentifier: query,
-        teamName: teamName.trim(),
-      });
-
-      if (response && response.success) {
-        const addedTeammate = response.data.teammate;
-        if (onRegistrationComplete) onRegistrationComplete(addedTeammate);
-        showSuccess(response.message || `Teammate added successfully!`);
+      if (isChange) {
+        const res = await profileApi.changeTeammate({
+          event_name: event.backendName,
+          new_teammate_username: username || undefined,
+          new_teammate_email: email,
+          new_person2_name: name,
+        });
+        showSuccess(res.message || 'Teammate updated successfully!');
+        if (onRegistrationComplete) onRegistrationComplete();
+        handleClose();
+      } else {
+        const res = await addToCart({
+          event_name: event.backendName,
+          person1,
+          person2: name,
+          person2_username: username || undefined,
+          person2_email: email,
+          team_name: teamName.trim() || undefined,
+        });
+        if (onRegistrationComplete) onRegistrationComplete();
+        showSuccess(res.message || 'Teammate added successfully!');
         setStep('CHECKOUT_PROMPT');
       }
     } catch (err) {
@@ -155,7 +172,7 @@ export const DuoRegistrationModal = ({
               <Button type="button" variant="primary" onClick={handlePromptYes} className="w-full font-aldrich tracking-widest">
                 YES
               </Button>
-              <Button type="button" variant="primary" onClick={handlePromptNo} className="w-full font-aldrich tracking-widest">
+              <Button type="button" variant="primary" onClick={handlePromptNo} isLoading={isLoading} className="w-full font-aldrich tracking-widest">
                 NO
               </Button>
             </div>
@@ -167,7 +184,7 @@ export const DuoRegistrationModal = ({
           <div className="w-full flex flex-col items-center animate-in fade-in duration-200">
             <IconBadge icon={Users} />
             <h3 className="font-aldrich text-lg sm:text-xl text-white font-semibold tracking-wide mb-1">
-              Add Your Team Details
+              {isChange ? 'Change Teammate' : 'Add Your Team Details'}
             </h3>
             <p className="font-aldrich text-[11px] text-purple-200/70 uppercase tracking-wider mb-4">
               Category:{' '}
@@ -182,29 +199,43 @@ export const DuoRegistrationModal = ({
             )}
 
             <form onSubmit={handleAddTeammateSubmit} className="w-full space-y-3.5">
+              {!isChange && (
+                <Input
+                  name="teamName"
+                  placeholder="Team name (optional)"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  icon={<Users className="w-4 h-4" />}
+                />
+              )}
               <Input
-                name="teamName"
-                placeholder="Team name (optional)"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                icon={<Users className="w-4 h-4" />}
-              />
-              <Input
-                name="teammate"
-                placeholder="Teammate username, PRN or email"
-                value={teammateIdentifier}
-                onChange={(e) => {
-                  setTeammateIdentifier(e.target.value);
-                  if (error) setError('');
-                }}
+                name="name"
+                placeholder="Teammate full name"
+                value={teammate.name}
+                onChange={handleTeammateChange}
                 icon={<UserCheck className="w-4 h-4" />}
                 autoFocus
+              />
+              <Input
+                name="username"
+                placeholder="Teammate username (optional)"
+                value={teammate.username}
+                onChange={handleTeammateChange}
+                icon={<UserCheck className="w-4 h-4" />}
+              />
+              <Input
+                name="email"
+                type="email"
+                placeholder="Teammate email"
+                value={teammate.email}
+                onChange={handleTeammateChange}
+                icon={<Mail className="w-4 h-4" />}
               />
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <Button
                   type="button"
                   variant="primary"
-                  onClick={() => setStep('PROMPT')}
+                  onClick={() => (isChange ? handleClose() : setStep('PROMPT'))}
                   className="w-full font-aldrich tracking-widest"
                 >
                   BACK
@@ -215,7 +246,7 @@ export const DuoRegistrationModal = ({
                   isLoading={isLoading}
                   className="w-full font-aldrich tracking-widest"
                 >
-                  ADD TO CART
+                  {isChange ? 'UPDATE' : 'ADD TO CART'}
                 </Button>
               </div>
             </form>

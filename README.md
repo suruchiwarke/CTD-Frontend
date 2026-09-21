@@ -185,17 +185,19 @@ The frontend is built with a decoupled API architecture in `src/api/` and `src/c
 
 ### Connecting to Live Backend:
 1. Open `.env` (or copy from `.env.example`).
-2. Set `VITE_API_BASE_URL` to your backend API base endpoint:
+2. Set `VITE_API_BASE_URL` to the FastAPI server root (no path prefix):
    ```env
-   VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
+   VITE_API_BASE_URL=http://127.0.0.1:8000
    ```
-3. The Axios client in `src/api/client.js` automatically routes all requests to this endpoint with automatic JWT Bearer token attachment and unified error handling.
+3. The Axios client in `src/api/client.js` routes all requests to this URL, attaches the JWT Bearer token, reads FastAPI's `detail` for error messages, and on a 401 clears the session and redirects to `/login`.
+4. The backend must allow CORS from the frontend origin (`http://localhost:3000` in dev).
 
-### Expected REST Endpoints:
-- `POST /auth/signup` — `{ username, fullName, email, password, phoneNumber, category }`
-- `POST /auth/login` — `{ email, password }`
-- `POST /auth/forgot-password` — `{ email }`
-- `GET /auth/me` — Returns current authenticated user object (including `registeredEvents`)
+### REST Endpoints Used:
+- `POST /auth/register` — `{ name, username, email, phone, password, category: "junior"|"senior" }` (the sign-up form is mapped to this, then the user is logged in)
+- `POST /auth/login` — `{ email, password }` → `{ access_token }`; the user is then loaded with `GET /auth/me`
+- `POST /auth/reset-password` `{ email }` → `POST /auth/verify-otp` `{ email, otp }` → `POST /auth/change-password` `{ email, otp, newpassword }`
+- `GET /cart/view`, `POST /cart/add-event`, `DELETE /cart/remove`, `POST /cart/checkout` `{ utr }` — events map to `rc` / `ncc` / `enigma` via `backendName` in `src/data/eventsData.js`
+- `GET /profile/my-events`, `PUT /profile/change-teammate`
 
 ---
 

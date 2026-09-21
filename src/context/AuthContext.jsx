@@ -32,54 +32,49 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
+  // login -> store access_token (local if "keep me signed in", else session) -> /auth/me
+  const startSession = useCallback(async ({ email, password }, remember) => {
+    const { access_token } = await authApi.login({ email, password });
+
+    // Clear both so a stale token in the other storage can't shadow the new one
+    for (const store of [localStorage, sessionStorage]) {
+      store.removeItem(TOKEN_KEY);
+      store.removeItem(USER_KEY);
+    }
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem(TOKEN_KEY, access_token);
+
+    try {
+      const authUser = await authApi.getCurrentUser();
+      storage.setItem(USER_KEY, JSON.stringify(authUser));
+      setUser(authUser);
+      setToken(access_token);
+    } catch (err) {
+      storage.removeItem(TOKEN_KEY);
+      throw err;
+    }
+  }, []);
+
   const login = useCallback(async (payload) => {
     try {
-      const response = await authApi.login(payload);
-      if (response && response.data) {
-        const { user: authUser, token: authToken } = response.data;
-        setUser(authUser);
-        setToken(authToken);
-
-        const storage = payload.keepSignedIn ? localStorage : sessionStorage;
-        storage.setItem(TOKEN_KEY, authToken);
-        storage.setItem(USER_KEY, JSON.stringify(authUser));
-
-        showSuccess('Logged in successfully!');
-      }
+      await startSession(payload, payload.keepSignedIn);
+      showSuccess('Logged in successfully!');
     } catch (err) {
       showError(err.message || 'Login failed');
       throw err;
     }
-  }, [showError, showSuccess]);
+  }, [startSession, showError, showSuccess]);
 
   const signUp = useCallback(async (payload) => {
     try {
-      const response = await authApi.signUp(payload);
-      if (response && response.data) {
-        const { user: authUser, token: authToken } = response.data;
-        setUser(authUser);
-        setToken(authToken);
-
-        localStorage.setItem(TOKEN_KEY, authToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(authUser));
-
-        showSuccess('Account created successfully!');
-      }
+      await authApi.signUp(payload);
+      await startSession(payload, true);
+      showSuccess('Account created successfully!');
     } catch (err) {
       showError(err.message || 'Sign up failed');
       throw err;
     }
-  }, [showError, showSuccess]);
-
-  const forgotPassword = useCallback(async (payload) => {
-    try {
-      const response = await authApi.forgotPassword(payload);
-      showSuccess(response.message || 'Reset instructions sent to your email.');
-    } catch (err) {
-      showError(err.message || 'Failed to process password reset.');
-      throw err;
-    }
-  }, [showError, showSuccess]);
+  }, [startSession, showError, showSuccess]);
 
   const logout = useCallback(() => {
     setUser(null);
@@ -100,7 +95,6 @@ export const AuthProvider = ({ children }) => {
         isLoading,
         login,
         signUp,
-        forgotPassword,
         logout,
       }}
     >

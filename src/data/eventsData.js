@@ -8,6 +8,8 @@ import {
 } from '../components/common/EventIcons';
 
 // Single source of truth for all 5 Credenz Tech Dayz events.
+// backendName -> event_name the FastAPI backend accepts (rc | ncc | enigma).
+// Events without it (nth, decode-rush) have no backend registration yet.
 // Used by both EventsPage (grid/cards) and EventDetailPage (full page).
 //
 // badgeIcon  -> small line-art badge (currently unused on the detail page;
@@ -16,6 +18,7 @@ import {
 export const eventsData = [
   {
     id: 'reverse-coding',
+    backendName: 'rc',
     name: 'REVERSE CODING',
     eyebrow: 'Event 01',
     tagline: 'Deduce the hidden logic from the output alone. The problem unfolds in reverse.',
@@ -50,6 +53,7 @@ export const eventsData = [
   },
   {
     id: 'enigma',
+    backendName: 'enigma',
     name: 'ENIGMA',
     eyebrow: 'Event 02',
     tagline: 'Test your logic, reasoning, and analytical thinking under pressure.',
@@ -86,6 +90,7 @@ export const eventsData = [
   },
   {
     id: 'ncc',
+    backendName: 'ncc',
     name: 'NATIONAL COMPUTING CONTEST',
     shortName: 'NCC',
     eyebrow: 'Event 03',
@@ -197,3 +202,4 @@ export const eventsData = [
 ];
 
 export const getEventById = (id) => eventsData.find((e) => e.id === id);
+export const getEventByBackendName = (name) => eventsData.find((e) => e.backendName === name);

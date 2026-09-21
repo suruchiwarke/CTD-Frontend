@@ -1,33 +1,48 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, CheckCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Mail, CheckCircle, KeyRound, Lock } from 'lucide-react';
+import { authApi } from '../api/auth';
 import { useNotification } from '../context/NotificationContext';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
 
+const Field = ({ id, label, children }) => (
+  <div className="w-full flex flex-col gap-1.5">
+    <label htmlFor={id} className="text-xs uppercase font-medium tracking-widest text-purple-200/90 pl-1">
+      {label}
+    </label>
+    {children}
+  </div>
+);
+
+// Steps: 1 = email, 2 = OTP, 3 = new password, 4 = done
+const SUBMIT_LABEL = { 1: 'SEND OTP', 2: 'VERIFY OTP', 3: 'RESET PASSWORD' };
+
 export const ForgotPasswordPage = () => {
-  const { forgotPassword } = useAuth();
   const { showError } = useNotification();
 
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!email || !email.includes('@')) {
-      showError('Please enter a valid email address.');
-      return;
-    }
-
     setIsLoading(true);
     try {
-      await forgotPassword({ email });
-      setIsSuccess(true);
-    } catch {
-      // Error handled by AuthContext
+      if (step === 1) {
+        await authApi.requestOtp(email);
+        setStep(2);
+      } else if (step === 2) {
+        await authApi.verifyOtp(email, otp);
+        setStep(3);
+      } else {
+        await authApi.changePassword(email, otp, newPassword);
+        setStep(4);
+      }
+    } catch (err) {
+      showError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +69,7 @@ export const ForgotPasswordPage = () => {
         {/* Glowing Pink Divider */}
         <div className="w-16 sm:w-20 h-[2px] bg-gradient-to-r from-transparent via-[#f472b6] to-transparent shadow-[0_0_10px_#f472b6,0_0_20px_rgba(244,114,182,0.8)] rounded-full mt-2 mb-8" />
 
-        {isSuccess ? (
+        {step === 4 ? (
           <div
             className="w-full rounded-2xl p-8 flex flex-col items-center space-y-4"
             style={{
@@ -67,9 +82,9 @@ export const ForgotPasswordPage = () => {
             <div className="w-14 h-14 rounded-full bg-green-500/20 border border-green-500/50 flex items-center justify-center text-green-400">
               <CheckCircle className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white uppercase tracking-wider">Email Sent</h3>
+            <h3 className="text-xl font-bold text-white uppercase tracking-wider">Password Reset</h3>
             <p className="text-sm text-purple-200/90 leading-relaxed">
-              If an account with <span className="text-white font-semibold">{email}</span> exists, you will receive password reset instructions shortly.
+              Your password for <span className="text-white font-semibold">{email}</span> has been updated. You can now log in with your new password.
             </p>
             <Link to="/login" className="pt-2">
               <Button size="sm">Back to Login</Button>
@@ -78,24 +93,56 @@ export const ForgotPasswordPage = () => {
         ) : (
           /* Forgot Password Form */
           <form onSubmit={handleSubmit} className="w-full space-y-5 text-left">
-            <div className="w-full flex flex-col gap-1.5">
-              <label
-                htmlFor="email"
-                className="text-xs uppercase font-medium tracking-widest text-purple-200/90 pl-1"
-              >
-                EMAIL
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                icon={<Mail className="w-4 h-4" />}
-                required
-                autoComplete="email"
-              />
-            </div>
+            {step === 1 && (
+              <Field id="email" label="EMAIL">
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  icon={<Mail className="w-4 h-4" />}
+                  required
+                  autoComplete="email"
+                />
+              </Field>
+            )}
+
+            {step === 2 && (
+              <>
+                <p className="text-sm text-purple-200/90 leading-relaxed text-center">
+                  Enter the 6-digit OTP sent to <span className="text-white font-semibold">{email}</span>.
+                </p>
+                <Field id="otp" label="OTP">
+                  <Input
+                    id="otp"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.trim())}
+                    icon={<KeyRound className="w-4 h-4" />}
+                    inputMode="numeric"
+                    maxLength={6}
+                    required
+                    autoComplete="one-time-code"
+                  />
+                </Field>
+              </>
+            )}
+
+            {step === 3 && (
+              <Field id="new-password" label="NEW PASSWORD">
+                <Input
+                  id="new-password"
+                  isPassword
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  icon={<Lock className="w-4 h-4" />}
+                  required
+                  autoComplete="new-password"
+                />
+              </Field>
+            )}
 
             {/* SUBMIT Button matching Figma */}
             <Button
@@ -103,8 +150,18 @@ export const ForgotPasswordPage = () => {
               isLoading={isLoading}
               className="w-full py-3.5 mt-2"
             >
-              SUBMIT
+              {SUBMIT_LABEL[step]}
             </Button>
+
+            {step === 2 && (
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="w-full text-xs text-purple-300 hover:text-white transition-colors tracking-wide text-center"
+              >
+                Resend OTP / use a different email
+              </button>
+            )}
           </form>
         )}
 
