@@ -1,66 +1,73 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { FormError } from '../components/common/FormError';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { Toast } from '../components/common/Toast';
 
 const NotificationContext = createContext(undefined);
 
+const TYPES = ['error', 'warning', 'success', 'info'];
+const DEFAULT_DURATIONS = { error: 6000, warning: 6000, success: 4000, info: 4000 };
+
 export const NotificationProvider = ({ children }) => {
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const errorTimerRef = React.useRef(null);
-  const successTimerRef = React.useRef(null);
+  const [toasts, setToasts] = useState({ error: null, warning: null, success: null, info: null });
+  const timers = useRef({});
 
-  const showError = useCallback((message, duration = 6000) => {
-    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
-    setErrorMessage(message);
-    if (duration > 0) {
-      errorTimerRef.current = setTimeout(() => {
-        setErrorMessage(null);
-      }, duration);
-    }
+  const clear = useCallback((type) => {
+    if (timers.current[type]) clearTimeout(timers.current[type]);
+    setToasts((prev) => ({ ...prev, [type]: null }));
   }, []);
 
-  const showSuccess = useCallback((message, duration = 4000) => {
-    if (successTimerRef.current) clearTimeout(successTimerRef.current);
-    setSuccessMessage(message);
-    if (duration > 0) {
-      successTimerRef.current = setTimeout(() => {
-        setSuccessMessage(null);
-      }, duration);
-    }
-  }, []);
+  const show = useCallback(
+    (type, title, description, duration = DEFAULT_DURATIONS[type]) => {
+      if (timers.current[type]) clearTimeout(timers.current[type]);
+      setToasts((prev) => ({ ...prev, [type]: { title, description } }));
+      if (duration > 0) {
+        timers.current[type] = setTimeout(() => {
+          setToasts((prev) => ({ ...prev, [type]: null }));
+        }, duration);
+      }
+    },
+    []
+  );
 
-  const clearError = useCallback(() => {
-    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
-    setErrorMessage(null);
-  }, []);
+  const showError = useCallback((title, description, duration) => show('error', title, description, duration), [show]);
+  const showWarning = useCallback((title, description, duration) => show('warning', title, description, duration), [show]);
+  const showSuccess = useCallback((title, description, duration) => show('success', title, description, duration), [show]);
+  const showInfo = useCallback((title, description, duration) => show('info', title, description, duration), [show]);
 
-  const clearSuccess = useCallback(() => {
-    if (successTimerRef.current) clearTimeout(successTimerRef.current);
-    setSuccessMessage(null);
-  }, []);
-
-  const clearAll = useCallback(() => {
-    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
-    if (successTimerRef.current) clearTimeout(successTimerRef.current);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-  }, []);
+  const clearError = useCallback(() => clear('error'), [clear]);
+  const clearWarning = useCallback(() => clear('warning'), [clear]);
+  const clearSuccess = useCallback(() => clear('success'), [clear]);
+  const clearInfo = useCallback(() => clear('info'), [clear]);
+  const clearAll = useCallback(() => TYPES.forEach(clear), [clear]);
 
   return (
     <NotificationContext.Provider
       value={{
-        errorMessage,
-        successMessage,
         showError,
+        showWarning,
         showSuccess,
+        showInfo,
         clearError,
+        clearWarning,
         clearSuccess,
+        clearInfo,
         clearAll,
       }}
     >
       {children}
-      {/* Top right Figma Error Banner */}
-      <FormError message={errorMessage} onClose={clearError} />
+      <div className="fixed top-4 right-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-3 sm:top-6 sm:right-6">
+        {TYPES.map(
+          (type) =>
+            toasts[type] && (
+              <Toast
+                key={type}
+                type={type}
+                title={toasts[type].title}
+                description={toasts[type].description}
+                onClose={() => clear(type)}
+              />
+            )
+        )}
+      </div>
     </NotificationContext.Provider>
   );
 };
