@@ -38,7 +38,7 @@ export const DecodeRushPage = () => {
       return;
     }
     setIsRegistered(true);
-    showSuccess('Successfully registered for Decode Rush 2026!');
+    showSuccess('Registration successful!', "You're registered for Decode Rush 2026. See you there!");
   };
 
   const rounds = [
@@ -142,7 +142,7 @@ export const DecodeRushPage = () => {
 
           {/* Subtitle */}
           <p className="font-aldrich text-sm sm:text-lg md:text-xl font-normal tracking-[0.3em] sm:tracking-[0.45em] text-purple-200/90 uppercase mt-2">
-            Unravel The Mystery • Patch The Code • Conquer The Arena
+            Unravel The Mystery ï¿½ Patch The Code ï¿½ Conquer The Arena
           </p>
 
           {/* Glowing Pink Divider */}
@@ -322,7 +322,7 @@ export const DecodeRushPage = () => {
                         key={t}
                         className="px-3 py-1 rounded-lg bg-purple-950/70 border border-purple-500/30 text-xs text-purple-200 tracking-wide font-medium"
                       >
-                        • {t}
+                        ï¿½ {t}
                       </span>
                     ))}
                   </div>

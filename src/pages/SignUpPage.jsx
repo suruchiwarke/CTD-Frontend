@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+﻿import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { User as UserIcon, Mail, Lock, Phone, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/common/Input';
@@ -8,9 +8,7 @@ import { Button } from '../components/common/Button';
 
 export const SignUpPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { signUp } = useAuth();
-  const returnUrl = location.state?.returnUrl || '/';
 
   const [formData, setFormData] = useState({
     username: '',
@@ -18,19 +16,14 @@ export const SignUpPage = () => {
     email: '',
     password: '',
     phoneNumber: '',
-    category: 'Junior',
+    category: 'Junior category',
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
   const categoryOptions = [
-    { value: 'FE', label: 'First Year (FE)' },
-    { value: 'SE', label: 'Second Year (SE)' },
-    { value: 'TE', label: 'Third Year (TE)' },
-    { value: 'BE', label: 'Final Year (BE)' },
-    { value: 'Junior', label: 'Junior Category' },
-    { value: 'Senior', label: 'Senior Category' },
-    { value: 'Other', label: 'Other' },
+    { value: 'Junior category', label: 'Junior category' },
+    { value: 'Senior category', label: 'Senior category' },
   ];
 
   const handleChange = (e) => {
@@ -42,7 +35,8 @@ export const SignUpPage = () => {
     setIsLoading(true);
     try {
       await signUp(formData);
-      navigate(returnUrl);
+      // Redirect to login page after signup
+      navigate('/login');
     } catch {
       // Error handled by AuthContext via NotificationContext
     } finally {
@@ -158,7 +152,7 @@ export const SignUpPage = () => {
         </form>
 
         {/* Footer Link */}
-        <p className="text-xs text-purple-200/80 mt-6 tracking-wide">
+        <p className="text-xs text-purple-200/80 mt-6 tracking-wide font-aldrich">
           Already have an account?{' '}
           <Link
             to="/login"

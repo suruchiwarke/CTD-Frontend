@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi } from '../api/auth';
 import { useNotification } from './NotificationContext';
 
@@ -7,8 +7,8 @@ const AuthContext = createContext(undefined);
 const TOKEN_KEY = 'ctd_auth_token';
 const USER_KEY = 'ctd_user';
 
-// Decode a JWT's payload (no signature check - the backend does that) and
-// tell whether it's past its `exp`. Malformed tokens count as expired.
+
+// Decode a JWT's payload and tell whether it's past its `exp`
 const isTokenExpired = (token) => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
@@ -40,9 +40,8 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem(TOKEN_KEY);
         sessionStorage.removeItem(USER_KEY);
       }
-    } else if (savedToken || savedUser) {
-      // Expired token, or a token/user pair left half-written - drop it rather
-      // than silently treating the visitor as logged in.
+    }
+    else if (savedToken || savedUser) {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       sessionStorage.removeItem(TOKEN_KEY);
@@ -51,49 +50,68 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  // login -> store access_token (local if "keep me signed in", else session) -> /auth/me
-  const startSession = useCallback(async ({ email, password }, remember) => {
-    const { access_token } = await authApi.login({ email, password });
-
-    // Clear both so a stale token in the other storage can't shadow the new one
-    for (const store of [localStorage, sessionStorage]) {
-      store.removeItem(TOKEN_KEY);
-      store.removeItem(USER_KEY);
-    }
-    const storage = remember ? localStorage : sessionStorage;
-    storage.setItem(TOKEN_KEY, access_token);
-
-    try {
-      const authUser = await authApi.getCurrentUser();
-      storage.setItem(USER_KEY, JSON.stringify(authUser));
-      setUser(authUser);
-      setToken(access_token);
-    } catch (err) {
-      storage.removeItem(TOKEN_KEY);
-      throw err;
-    }
-  }, []);
-
   const login = useCallback(async (payload) => {
     try {
-      await startSession(payload, payload.keepSignedIn);
-      showSuccess('Logged in successfully!');
+      const response = await authApi.login(payload);
+      if (response && response.access_token) {
+        // Live backend auth flow
+        localStorage.setItem(TOKEN_KEY, response.access_token);
+        setToken(response.access_token);
+        
+        try {
+            const userRes = await authApi.getCurrentUser();
+            if (userRes && (userRes.id || userRes.email)) {
+                setUser(userRes);
+                localStorage.setItem(USER_KEY, JSON.stringify(userRes));
+                showSuccess('Logged in successfully!');
+            } else {
+                throw new Error("Could not retrieve user data");
+            }
+        } catch (err) {
+            localStorage.removeItem(TOKEN_KEY);
+            setToken(null);
+            throw new Error("Failed to fetch user data.");
+        }
+      } else if (response && response.data) {
+        // Mock backend flow
+        const { user: authUser, token: authToken } = response.data;
+        setUser(authUser);
+        setToken(authToken);
+
+        localStorage.setItem(TOKEN_KEY, authToken);
+        localStorage.setItem(USER_KEY, JSON.stringify(authUser));
+
+        showSuccess('Logged in successfully!');
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (err) {
       showError(err.message || 'Login failed');
       throw err;
     }
-  }, [startSession, showError, showSuccess]);
+  }, [showError, showSuccess]);
 
   const signUp = useCallback(async (payload) => {
     try {
-      await authApi.signUp(payload);
-      await startSession(payload, false);
-      showSuccess('Account created successfully!');
+      const response = await authApi.signUp(payload);
+      // After sign up, do not log in automatically. Direct user to log in.
+      showSuccess(response?.message || 'Account created successfully! Please log in.');
+      return response;
     } catch (err) {
       showError(err.message || 'Sign up failed');
       throw err;
     }
-  }, [startSession, showError, showSuccess]);
+  }, [showError, showSuccess]);
+
+  const forgotPassword = useCallback(async (payload) => {
+    try {
+      const response = await authApi.forgotPassword(payload);
+      showSuccess(response.message || 'Reset instructions sent to your email.');
+    } catch (err) {
+      showError(err.message || 'Failed to process password reset.');
+      throw err;
+    }
+  }, [showError, showSuccess]);
 
   const logout = useCallback(() => {
     setUser(null);
@@ -114,6 +132,7 @@ export const AuthProvider = ({ children }) => {
         isLoading,
         login,
         signUp,
+        forgotPassword,
         logout,
       }}
     >

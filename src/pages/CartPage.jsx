@@ -1,30 +1,12 @@
-﻿import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Trash2, AlertCircle } from 'lucide-react';
+import React from 'react';
+import { ShoppingCart, Trash2, Users } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { getEventByBackendName } from '../data/eventsData';
-import { Button } from '../components/common/Button';
+import { useNavigate } from 'react-router-dom';
 
 export const CartPage = () => {
+  const { cartItems, removeFromCart } = useCart();
   const navigate = useNavigate();
-  const { cartItems, bill, isLoading, error, removeFromCart } = useCart();
   const isEmpty = !cartItems || cartItems.length === 0;
-
-  const [actionError, setActionError] = useState('');
-  const [busy, setBusy] = useState('');
-  const shownError = actionError || error;
-
-  const handleRemove = async (eventName) => {
-    setActionError('');
-    setBusy(eventName);
-    try {
-      await removeFromCart(eventName);
-    } catch (err) {
-      setActionError(err.message);
-    } finally {
-      setBusy('');
-    }
-  };
 
   return (
     <div className="relative min-h-screen w-full flex flex-col justify-between overflow-hidden bg-black selection:bg-pink-500 selection:text-white">
@@ -61,19 +43,8 @@ export const CartPage = () => {
             </div>
           </div>
 
-          {shownError && (
-            <div className="w-full mt-5 p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-200 text-xs font-aldrich flex items-center gap-2.5 text-left">
-              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-              <span>{shownError}</span>
-            </div>
-          )}
-
           {/* Empty Cart State */}
-          {isEmpty && isLoading ? (
-            <div className="flex-1 flex items-center justify-center py-10 my-auto">
-              <p className="text-sm text-purple-200/70 font-aldrich tracking-wide">Loading your cart...</p>
-            </div>
-          ) : isEmpty ? (
+          {isEmpty ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-10 sm:py-14 my-auto">
               
               {/* Glowing Empty Cart Illustration with Light Rays */}
@@ -116,53 +87,52 @@ export const CartPage = () => {
             </div>
           ) : (
             /* Populated cart list if events are present */
-            <div className="flex-1 py-6 space-y-4">
-              {cartItems.map((item) => {
-                const meta = getEventByBackendName(item.event_name);
-                return (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-purple-500/30 bg-purple-950/40 p-4"
-                  >
-                    <div className="min-w-0">
-                      <h3 className="font-tungsten text-xl sm:text-2xl tracking-wider text-white uppercase font-bold truncate">
-                        {meta?.name || item.event_name.toUpperCase()}
+            <div className="flex-1 py-8 space-y-5">
+              {cartItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="flex items-center justify-between bg-[#2a133d]/40 border border-pink-500/30 rounded-2xl p-4 backdrop-blur-md hover:bg-[#2a133d]/60 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Icon Box */}
+                    <div className="w-12 h-12 rounded-xl bg-[#3f1954]/50 border border-pink-400/20 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-6 h-6 text-pink-100" />
+                    </div>
+                    {/* Event Name & Subtext */}
+                    <div className="flex flex-col">
+                      <h3 className="text-white font-bold tracking-wide uppercase">
+                        {item.shortName || item.name}
                       </h3>
-                      <p className="font-aldrich text-xs text-purple-200/70 mt-1 truncate">
-                        {item.team_name ? `Team ${item.team_name} · ` : ''}
-                        {item.person2 ? `With ${item.person2}` : 'Solo'}
+                      <p className="text-xs text-pink-200/60 mt-0.5">
+                        PICT IEEE Student Branch
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="font-aldrich text-sm font-bold text-pink-300">
-                        {item.price > 0 ? `₹${item.price}` : 'FREE'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemove(item.event_name)}
-                        disabled={busy === item.event_name}
-                        className="p-1.5 rounded-full text-purple-300 hover:text-red-300 hover:bg-purple-950/60 transition-colors disabled:opacity-50"
-                        aria-label={`Remove ${meta?.name || item.event_name} from cart`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
                   </div>
-                );
-              })}
 
-              <div className="flex items-center justify-between pt-4 border-t border-purple-800/40 font-aldrich">
-                <span className="text-xs uppercase tracking-widest text-purple-300/70">Total</span>
-                <span className="text-xl font-bold text-white">{bill > 0 ? `₹${bill}` : 'FREE'}</span>
+                  {/* Price & Delete Button */}
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <span className="text-xl sm:text-2xl font-bold text-pink-200">
+                      {item.fee !== "FREE" && !item.fee.includes('₹') ? '₹' : ''}{item.fee.split(' ')[0]}
+                    </span>
+                    <button 
+                      onClick={() => removeFromCart(item.id)}
+                      className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center hover:bg-pink-500/30 hover:border-pink-500/50 transition-all text-pink-300 group"
+                    >
+                      <Trash2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Checkout Button */}
+              <div className="pt-6 mt-4 border-t border-pink-500/20 flex justify-end">
+                <button
+                  onClick={() => navigate('/checkout')}
+                  className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-bold text-white tracking-wide hover:from-pink-400 hover:to-purple-400 shadow-[0_0_15px_rgba(244,114,182,0.4)] transition-all hover:scale-105"
+                >
+                  PROCEED TO CHECKOUT
+                </button>
               </div>
-
-              <Button
-                type="button"
-                onClick={() => navigate('/checkout')}
-                className="w-full font-aldrich tracking-widest"
-              >
-                CHECKOUT
-              </Button>
             </div>
           )}
         </div>

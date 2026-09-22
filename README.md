@@ -1,4 +1,4 @@
-﻿# Credenz Tech Dayz (CTD) — Frontend
+# Credenz Tech Dayz (CTD) — Frontend
 
 Welcome to the official frontend repository for **Credenz Tech Dayz (CTD)**, the premier annual technical fest organized by the **PICT IEEE Student Branch (PISB)**.
 
@@ -153,7 +153,7 @@ CTD Frontend/
 
 ### 5. Profile Page (`/profile`)
 - Designed as a **single-screen desktop layout** with no scrolling.
-- Displays user information: Avatar with initials and verified account badge, Full Name, Username, Registered Email, Academic Category (*Junior (FE/SE)* / *Senior (TE/BE)*), and Phone Number.
+- Displays user information: Avatar with initials and verified account badge, Full Name, Username, Registered Email, Academic Category (*Junior category* / *Senior category*), and Phone Number.
 - **Registered Events Section**: Automatically lists confirmed events with `✓ Payment Verified` status badges once registered and verified by the backend.
 - Clean canvas displayed when no events are registered.
 
@@ -163,10 +163,10 @@ CTD Frontend/
 
 ### 7. Authentication Flows
 - **Sign Up (`/signup`)**:
-  - Fields: Username, Full Name, Email, Password, Phone Number, and Student Category (`FE`, `SE`, `TE`, `BE`, `Other`).
-  - Creates user session with local storage fallback and REST backend compatibility.
+  - Fields: Username, Full Name, Email, Password, Phone Number, and Student Category (`Junior category`, `Senior category`).
+  - Upon successful registration, displays an account confirmation message and redirects the user directly to the **Login Page (`/login`)**.
 - **Login (`/login`)**:
-  - Requires sign-up first. Validates credentials and redirects upon success.
+  - Requires sign-up first. Validates credentials and redirects upon successful login.
 - **Forgot Password (`/forgot-password`)**:
   - Validates email existence and triggers recovery flow.
 - **Corner Profile Avatar & Dropdown**:
@@ -185,19 +185,17 @@ The frontend is built with a decoupled API architecture in `src/api/` and `src/c
 
 ### Connecting to Live Backend:
 1. Open `.env` (or copy from `.env.example`).
-2. Set `VITE_API_BASE_URL` to the FastAPI server root (no path prefix):
+2. Set `VITE_API_BASE_URL` to your backend API base endpoint:
    ```env
-   VITE_API_BASE_URL=http://127.0.0.1:8000
+   VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
    ```
-3. The Axios client in `src/api/client.js` routes all requests to this URL, attaches the JWT Bearer token, reads FastAPI's `detail` for error messages, and on a 401 clears the session and redirects to `/login`.
-4. The backend must allow CORS from the frontend origin (`http://localhost:3000` in dev).
+3. The Axios client in `src/api/client.js` automatically routes all requests to this endpoint with automatic JWT Bearer token attachment and unified error handling.
 
-### REST Endpoints Used:
-- `POST /auth/register` — `{ name, username, email, phone, password, category: "junior"|"senior" }` (the sign-up form is mapped to this, then the user is logged in)
-- `POST /auth/login` — `{ email, password }` → `{ access_token }`; the user is then loaded with `GET /auth/me`
-- `POST /auth/reset-password` `{ email }` → `POST /auth/verify-otp` `{ email, otp }` → `POST /auth/change-password` `{ email, otp, newpassword }`
-- `GET /cart/view`, `POST /cart/add-event`, `DELETE /cart/remove`, `POST /cart/checkout` `{ utr }` — events map to `rc` / `ncc` / `enigma` via `backendName` in `src/data/eventsData.js`
-- `GET /profile/my-events`, `PUT /profile/change-teammate`
+### Expected REST Endpoints:
+- `POST /auth/signup` — `{ username, fullName, email, password, phoneNumber, category: "Junior category" | "Senior category" }`
+- `POST /auth/login` — `{ email, password }`
+- `POST /auth/forgot-password` — `{ email }`
+- `GET /auth/me` — Returns current authenticated user object (including `registeredEvents`)
 
 ---
 

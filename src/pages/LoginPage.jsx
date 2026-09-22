@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -13,14 +13,13 @@ export const LoginPage = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login({ email, password, keepSignedIn });
+      await login({ email, password });
       navigate(returnUrl);
     } catch {
       // Error handled by AuthContext via NotificationContext
@@ -87,21 +86,11 @@ export const LoginPage = () => {
             autoComplete="current-password"
           />
 
-          {/* Keep me signed in & Forgot Password row */}
-          <div className="flex items-center justify-between text-xs text-purple-200/90 pt-1 pb-2">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={keepSignedIn}
-                onChange={(e) => setKeepSignedIn(e.target.checked)}
-                className="w-4 h-4 rounded border-purple-400/40 bg-purple-950/60 text-purple-600 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-purple-500"
-              />
-              <span>Keep me signed in</span>
-            </label>
-
+          {/* Forgot Password Link */}
+          <div className="flex items-center justify-end text-xs text-purple-200/90 pt-1 pb-2">
             <Link
               to="/forgot-password"
-              className="text-purple-300 hover:text-white transition-colors tracking-wide"
+              className="text-purple-300 hover:text-white transition-colors tracking-wide font-aldrich"
             >
               Forgot password?
             </Link>
@@ -119,7 +108,7 @@ export const LoginPage = () => {
         </form>
 
         {/* Footer Link */}
-        <p className="text-xs text-purple-200/80 mt-8 tracking-wide">
+        <p className="text-xs text-purple-200/80 mt-8 tracking-wide font-aldrich">
           New here?{' '}
           <Link
             to="/signup"

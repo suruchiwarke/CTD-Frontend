@@ -20,6 +20,7 @@ export const eventsData = [
     id: 'reverse-coding',
     backendName: 'rc',
     name: 'REVERSE CODING',
+    shortName: 'RC',
     eyebrow: 'Event 01',
     tagline: 'Deduce the hidden logic from the output alone. The problem unfolds in reverse.',
     cardDescription:
@@ -55,6 +56,7 @@ export const eventsData = [
     id: 'enigma',
     backendName: 'enigma',
     name: 'ENIGMA',
+    shortName: 'ENIGMA',
     eyebrow: 'Event 02',
     tagline: 'Test your logic, reasoning, and analytical thinking under pressure.',
     cardDescription:
