@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem(USER_KEY);
       }
     }
-    } else if (savedToken || savedUser) {
+    else if (savedToken || savedUser) {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
       sessionStorage.removeItem(TOKEN_KEY);
