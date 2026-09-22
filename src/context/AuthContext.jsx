@@ -7,6 +7,18 @@ const AuthContext = createContext(undefined);
 const TOKEN_KEY = 'ctd_auth_token';
 const USER_KEY = 'ctd_user';
 
+
+// Decode a JWT's payload and tell whether it's past its `exp`
+const isTokenExpired = (token) => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (!payload.exp) return false;
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -18,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     const savedToken = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
     const savedUser = localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
 
-    if (savedToken && savedUser) {
+    if (savedToken && savedUser && !isTokenExpired(savedToken)) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
@@ -29,13 +41,39 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem(USER_KEY);
       }
     }
+    } else if (savedToken || savedUser) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(USER_KEY);
+    }
     setIsLoading(false);
   }, []);
 
   const login = useCallback(async (payload) => {
     try {
       const response = await authApi.login(payload);
-      if (response && response.data) {
+      if (response && response.access_token) {
+        // Live backend auth flow
+        localStorage.setItem(TOKEN_KEY, response.access_token);
+        setToken(response.access_token);
+        
+        try {
+            const userRes = await authApi.getCurrentUser();
+            if (userRes && (userRes.id || userRes.email)) {
+                setUser(userRes);
+                localStorage.setItem(USER_KEY, JSON.stringify(userRes));
+                showSuccess('Logged in successfully!');
+            } else {
+                throw new Error("Could not retrieve user data");
+            }
+        } catch (err) {
+            localStorage.removeItem(TOKEN_KEY);
+            setToken(null);
+            throw new Error("Failed to fetch user data.");
+        }
+      } else if (response && response.data) {
+        // Mock backend flow
         const { user: authUser, token: authToken } = response.data;
         setUser(authUser);
         setToken(authToken);
@@ -44,6 +82,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem(USER_KEY, JSON.stringify(authUser));
 
         showSuccess('Logged in successfully!');
+      } else {
+        throw new Error("Invalid response from server");
       }
     } catch (err) {
       showError(err.message || 'Login failed');
