@@ -7,6 +7,18 @@ const AuthContext = createContext(undefined);
 const TOKEN_KEY = 'ctd_auth_token';
 const USER_KEY = 'ctd_user';
 
+// Decode a JWT's payload (no signature check - the backend does that) and
+// tell whether it's past its `exp`. Malformed tokens count as expired.
+const isTokenExpired = (token) => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (!payload.exp) return false;
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -18,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     const savedToken = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
     const savedUser = localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
 
-    if (savedToken && savedUser) {
+    if (savedToken && savedUser && !isTokenExpired(savedToken)) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
@@ -28,6 +40,13 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem(TOKEN_KEY);
         sessionStorage.removeItem(USER_KEY);
       }
+    } else if (savedToken || savedUser) {
+      // Expired token, or a token/user pair left half-written - drop it rather
+      // than silently treating the visitor as logged in.
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(USER_KEY);
     }
     setIsLoading(false);
   }, []);
@@ -68,7 +87,7 @@ export const AuthProvider = ({ children }) => {
   const signUp = useCallback(async (payload) => {
     try {
       await authApi.signUp(payload);
-      await startSession(payload, true);
+      await startSession(payload, false);
       showSuccess('Account created successfully!');
     } catch (err) {
       showError(err.message || 'Sign up failed');
